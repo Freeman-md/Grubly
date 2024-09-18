@@ -1,9 +1,10 @@
 ﻿using Grubly.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Grubly.Data
 {
-    public class GrublyContext : DbContext {
+    public class GrublyContext : IdentityDbContext<ApplicationUser> {
         public GrublyContext(DbContextOptions<GrublyContext> options) : base(options) {
 
         }
