@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.11.35303.130
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grubly", "Grubly\Grubly.csproj", "{BE3DD6F9-6E31-4D1C-99A4-2D6381F65E85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Grubly", "Grubly\Grubly.csproj", "{BE3DD6F9-6E31-4D1C-99A4-2D6381F65E85}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Grubly.Tests", "Grubly.Tests\Grubly.Tests.csproj", "{0127D20C-78A2-4CA9-AA35-E41D5E474F24}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{BE3DD6F9-6E31-4D1C-99A4-2D6381F65E85}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BE3DD6F9-6E31-4D1C-99A4-2D6381F65E85}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BE3DD6F9-6E31-4D1C-99A4-2D6381F65E85}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0127D20C-78A2-4CA9-AA35-E41D5E474F24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0127D20C-78A2-4CA9-AA35-E41D5E474F24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0127D20C-78A2-4CA9-AA35-E41D5E474F24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0127D20C-78A2-4CA9-AA35-E41D5E474F24}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
