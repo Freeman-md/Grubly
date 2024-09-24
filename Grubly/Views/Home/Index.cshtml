@@ -1,7 +1,62 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+ViewData["Title"] = "Home Page";
 }
+<section class="space-y-14" id="index">
+    <div class="space-y-4">
+        <h1 class="font-bold text-2xl">Discover and Share Delicious Recipes</h1>
+        <p>Join our community of food lovers and explore thousands of recipes</p>
+        <a id="Get-Started" asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary">Get Started</a>
+    </div>
 
-<div class="text-center">
-    
-</div>
+    <div class="flex items-center w-full">
+
+        <input type="text" name="searchText" id="searchText" placeholder="Search Recipes"
+            class="border rounded-l-lg px-4 py-2 flex-1 !rounded-r-none" />
+        <button class="btn btn-md btn-primary !rounded-l-none">
+            Search
+        </button>
+
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="font-bold text-xl">Featured Recipes</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 w-full gap-4">
+            @{
+            var FeaturedRecipes = new[] {
+            new { Title = "Spicy Thai Curry" },
+            new { Title = "Classic Margheritta Pizza" },
+            new { Title = "Vegan Chocolate Cake" }
+            };
+
+            foreach (var recipe in FeaturedRecipes) {
+            @Html.Partial("_FeaturedRecipe", recipe);
+            }
+            }
+        </div>
+    </div>
+
+    <div class="space-y-4">
+        <h2 class="font-bold text-xl">Recipe Categories</h2>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 w-full bg-transparent">
+            @{
+            var RecipeCategories = new[] {
+            new { Name = "Breakfast" },
+            new { Name = "Lunch" },
+            new { Name = "Dinner" },
+            new { Name = "Desserts" },
+            };
+
+            foreach (var category in RecipeCategories) {
+            @Html.Partial("_RecipeCategory", category);
+            }
+            }
+        </div>
+    </div>
+
+    <div class="bg-gray-100 flex flex-col items-center justify-center p-8 space-y-4 text-center">
+        <h3 class="text-xl font-bold">Ready to start cooking?</h3>
+        <p>Join our community and share your favorite recipes with food lovers around the world</p>
+        <a asp-area="Identity" asp-page="/Account/Register" class="btn btn-primary">Sign Up Now</a>
+    </div>
+
+</section>
