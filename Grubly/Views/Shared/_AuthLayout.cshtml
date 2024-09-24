@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - Grubly</title>
+    <link rel="stylesheet" href="/css/styles.css">
+
+</head>
+
+<body>
+
+    <div class="container">
+        <main role="main" class="py-6 min-h-screen flex flex-col justify-center">
+
+            <div class="mx-auto flex flex-col items-center space-y-6">
+                <a asp-controller="Home" asp-action="Index">
+                    <img src="/images/app-logo.svg" alt="Grubly" class="w-40" />
+                </a>
+                @RenderBody()
+            </div>
+        </main>
+    </div>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+
+</html>

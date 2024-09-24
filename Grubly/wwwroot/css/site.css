@@ -12,6 +12,10 @@
     a {
         @apply transition hover:underline
     }
+
+    label {
+        @apply inline-block mb-2
+    }
 }
 
 @layer components {
@@ -85,5 +89,9 @@
 
     .btn-lg {
         @apply px-5 py-3 text-lg;
+    }
+
+    .form-control {
+        @apply w-full border bg-gray-50 rounded p-3 focus:outline-primary
     }
 }
