@@ -18,7 +18,7 @@
         public int ID { get; set; }
         public required string Title { get; set; }
         public required string Description { get; set; }
-        public required string Instructions { get; set; }
+        public string? Instructions { get; set; }
         public required CuisineType CuisineType { get; set; }
         public required DifficultyLevel DifficultyLevel { get; set; }
         public string? ImageUrl { get; set; }

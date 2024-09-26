@@ -28,7 +28,12 @@ public class RecipeRepository : IRecipeRepository
         throw new NotImplementedException();
     }
 
-    public Task<Recipe> GetById(int id)
+    public Task<Recipe?> GetOneWithAllDetails(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Recipe?> GetOneWithAllDetails(string title)
     {
         throw new NotImplementedException();
     }
