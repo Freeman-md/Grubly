@@ -24,7 +24,7 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     public RecipeRepositoryTests(TestFixtureBase fixture)
     {
         _fixture = fixture;
-        
+
         _dbContext = fixture.DbContext;
         _recipeRepository = new RecipeRepository(_dbContext);
         _ingredientRepository = new IngredientRepository(_dbContext);
@@ -46,6 +46,50 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
         Recipe? savedRecipe = await _recipeRepository.GetOne(newRecipe.Title);
         Assert.NotNull(savedRecipe);
         Assert.Equal(newRecipe.Title, savedRecipe.Title);
+        #endregion
+    }
+
+    [Fact]
+    public async Task CreateRecipe_WithRelations_AddsRecipeWithRelationsToDatabase()
+    {
+        #region Arrange
+        Ingredient[] ingredients = {
+            new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
+            new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
+        };
+        Category[] categories = {
+            new Category { Name = "Breakfast" },
+            new Category { Name = "Lunch" }
+        };
+
+        Recipe newRecipe = new RecipeBuilder()
+                                    .WithIngredients(ingredients)
+                                    .WithCategories(categories)
+                                    .Build();
+        #endregion
+
+        #region Act
+        await _recipeRepository.Create(newRecipe);
+        #endregion
+
+        #region Assert
+        Recipe? savedRecipe = await _recipeRepository.GetOne(newRecipe.Title);
+
+        Assert.NotNull(savedRecipe);
+        Assert.Equal(newRecipe.Title, savedRecipe.Title);
+
+        Assert.Equal(ingredients.Length, savedRecipe.Ingredients!.Count);
+        foreach (var ingredient in ingredients)
+        {
+            Assert.Contains(savedRecipe.Ingredients, i => i.Name == ingredient.Name && i.Description == ingredient.Description);
+        }
+
+        // Verify categories
+        Assert.Equal(categories.Length, savedRecipe.Categories!.Count);
+        foreach (var category in categories)
+        {
+            Assert.Contains(savedRecipe.Categories, c => c.Name == category.Name);
+        }
         #endregion
     }
 
