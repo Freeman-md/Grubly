@@ -35,61 +35,17 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     public async Task CreateRecipe_ValidInput_AddsRecipeToDatabase()
     {
         #region Arrange
-        Recipe newRecipe = new RecipeBuilder().Build();
+        Recipe unSavedRecipe = new RecipeBuilder().Build();
         #endregion
 
         #region Act
-        await _recipeRepository.Create(newRecipe);
+        await _recipeRepository.Create(unSavedRecipe);
         #endregion
 
         #region Assert
-        Recipe? savedRecipe = await _recipeRepository.GetOne(newRecipe.Title);
+        Recipe? savedRecipe = await _recipeRepository.GetOne(unSavedRecipe.Title);
         Assert.NotNull(savedRecipe);
-        Assert.Equal(newRecipe.Title, savedRecipe.Title);
-        #endregion
-    }
-
-    [Fact]
-    public async Task CreateRecipe_WithRelations_AddsRecipeWithRelationsToDatabase()
-    {
-        #region Arrange
-        Ingredient[] ingredients = {
-            new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
-            new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
-        };
-        Category[] categories = {
-            new Category { Name = "Breakfast" },
-            new Category { Name = "Lunch" }
-        };
-
-        Recipe newRecipe = new RecipeBuilder()
-                                    .WithIngredients(ingredients)
-                                    .WithCategories(categories)
-                                    .Build();
-        #endregion
-
-        #region Act
-        await _recipeRepository.Create(newRecipe);
-        #endregion
-
-        #region Assert
-        Recipe? savedRecipe = await _recipeRepository.GetOne(newRecipe.Title);
-
-        Assert.NotNull(savedRecipe);
-        Assert.Equal(newRecipe.Title, savedRecipe.Title);
-
-        Assert.Equal(ingredients.Length, savedRecipe.Ingredients!.Count);
-        foreach (var ingredient in ingredients)
-        {
-            Assert.Contains(savedRecipe.Ingredients, i => i.Name == ingredient.Name && i.Description == ingredient.Description);
-        }
-
-        // Verify categories
-        Assert.Equal(categories.Length, savedRecipe.Categories!.Count);
-        foreach (var category in categories)
-        {
-            Assert.Contains(savedRecipe.Categories, c => c.Name == category.Name);
-        }
+        Assert.Equal(unSavedRecipe.Title, savedRecipe.Title);
         #endregion
     }
 
@@ -113,11 +69,11 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     public async Task CreateRecipe_InvalidInputs_ThrowsValidationException(string title, string description, CuisineType type, DifficultyLevel difficultyLevel)
     {
         #region Arrange
-        Recipe recipe = new Recipe { Title = title, Description = description, CuisineType = type, DifficultyLevel = difficultyLevel };
+        Recipe unSavedRecipe = new Recipe { Title = title, Description = description, CuisineType = type, DifficultyLevel = difficultyLevel };
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() => _recipeRepository.Create(recipe));
+        await Assert.ThrowsAsync<ValidationException>(() => _recipeRepository.Create(unSavedRecipe));
         #endregion
     }
 
@@ -125,12 +81,12 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     public async Task CreateRecipe_DuplicateEntity_ThrowsArgumentException()
     {
         #region Arrange
-        Recipe newRecipe = new RecipeBuilder().Build();
-        Recipe sameRecipe = newRecipe;
+        Recipe unSavedRecipe = new RecipeBuilder().Build();
+        Recipe sameRecipe = unSavedRecipe;
         #endregion
 
         #region Act
-        await _recipeRepository.Create(newRecipe);
+        await _recipeRepository.Create(unSavedRecipe);
         #endregion
 
         #region Assert
@@ -139,46 +95,71 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     }
 
     [Fact]
-    public async Task CreateRecipe_DatabaseIntegrity_EnsuresCorrectForeignKeys()
+    public async Task CreateRecipe_WithRelations_EnsuresCorrectForeignKeysAndSavesRelatedEntities()
     {
         #region Arrange
-        var ingredient1 = new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" };
-        var ingredient2 = new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" };
-        var category = new Category { Name = "Breakfast" };
+        // Define ingredients
+        Ingredient[] ingredients = {
+        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
+        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
+    };
 
-        _dbContext.Ingredients.Add(ingredient1);
-        _dbContext.Ingredients.Add(ingredient2);
-        _dbContext.Categories.Add(category);
+        // Define categories
+        Category[] categories = {
+        new Category { Name = "Breakfast" },
+        new Category { Name = "Lunch" }
+    };
+
+        // Add ingredients and categories to the context
+        _dbContext.Ingredients.AddRange(ingredients);
+        _dbContext.Categories.AddRange(categories);
         await _dbContext.SaveChangesAsync();
 
-        Recipe recipe = new RecipeBuilder()
-        .WithTitle("Tomato Omelette")
-        .WithIngredients(ingredient1, ingredient2)
-        .WithCategories(category)
-        .Build();
+        // Create a new recipe with ingredients and categories
+        Recipe unSavedRecipe = new RecipeBuilder()
+                                    .WithTitle("Tomato Omelette")
+                                    .WithIngredients(ingredients)
+                                    .WithCategories(categories)
+                                    .Build();
         #endregion
 
         #region Act
-        Recipe newRecipe = await _recipeRepository.Create(recipe);
+        // Add the recipe to the repository
+        Recipe savedRecipe = await _recipeRepository.Create(unSavedRecipe);
         #endregion
 
         #region Assert
-        Recipe? savedRecipe = await _recipeRepository.GetOneWithAllDetails(newRecipe.ID);
-        Assert.NotNull(savedRecipe);
-        Assert.Contains(savedRecipe.Ingredients!, i => i.Name == "Tomato");
-        Assert.Contains(savedRecipe.Categories!, c => c.Name == "Breakfast");
+        // Retrieve the saved recipe from the repository, ensuring all related data is included
+        Recipe? retrievedRecipe = await _recipeRepository.GetOneWithAllDetails(savedRecipe.ID);
+        Assert.NotNull(retrievedRecipe);
+        Assert.Equal(unSavedRecipe.Title, retrievedRecipe!.Title);
+
+        // Verify that the recipe contains the correct ingredients
+        Assert.Equal(ingredients.Length, retrievedRecipe.Ingredients!.Count);
+        foreach (var ingredient in ingredients)
+        {
+            Assert.Contains(retrievedRecipe.Ingredients, i => i.Name == ingredient.Name && i.Description == ingredient.Description);
+        }
+
+        // Verify that the recipe contains the correct categories
+        Assert.Equal(categories.Length, retrievedRecipe.Categories!.Count);
+        foreach (var category in categories)
+        {
+            Assert.Contains(retrievedRecipe.Categories, c => c.Name == category.Name);
+        }
         #endregion
     }
 
+
     [Fact]
-    public async Task CreateRecipe_InvalidForeignKey_ThrowsForeignKeyViolationException()
+    public async Task CreateRecipe_InvalidForeignKey_ThrowsDbUpdateException()
     {
         #region Arrange
         var invalidIngredient = new Ingredient { ID = 999, Name = "Non-Existent Ingredient" }; // Invalid ID
         var invalidCategory = new Category { ID = 999, Name = "Non-Existent Category" }; // Invalid ID
 
         // Build the recipe with these non-existent entities
-        Recipe newRecipe = new RecipeBuilder()
+        Recipe unSavedRecipe = new RecipeBuilder()
             .WithTitle("Invalid Recipe")
             .WithIngredients(invalidIngredient)  // Invalid reference
             .WithCategories(invalidCategory)     // Invalid reference
@@ -186,7 +167,7 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<DbUpdateException>(() => _recipeRepository.Create(newRecipe));
+        await Assert.ThrowsAsync<DbUpdateException>(() => _recipeRepository.Create(unSavedRecipe));
         #endregion
     }
 }

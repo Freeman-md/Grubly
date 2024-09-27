@@ -10,18 +10,18 @@ public partial class RecipeRepositoryTests
     public async Task GetRecipeById_ValidId_ReturnsCorrectRecipe()
     {
         #region Arrange
-        Recipe recipe = new RecipeBuilder().Build();
-        Recipe newRecipe = await _recipeRepository.Create(recipe);
+        Recipe unSavedRecipe = new RecipeBuilder().Build();
+        Recipe savedRecipe = await _recipeRepository.Create(unSavedRecipe);
         #endregion
 
         #region Act
-        Recipe? savedRecipe = await _recipeRepository.GetOne(newRecipe.ID);
+        Recipe? retrievedRecipe = await _recipeRepository.GetOne(savedRecipe.ID);
         #endregion
 
         #region Assert
-        Assert.NotNull(savedRecipe);
-        Assert.Equal(newRecipe.Title, savedRecipe.Title);
-        Assert.Equal(newRecipe.Description, savedRecipe.Description);
+        Assert.NotNull(retrievedRecipe);
+        Assert.Equal(savedRecipe.Title, retrievedRecipe.Title);
+        Assert.Equal(savedRecipe.Description, retrievedRecipe.Description);
         #endregion
     }
 
@@ -29,18 +29,18 @@ public partial class RecipeRepositoryTests
     public async Task GetRecipeByTitle_ValidTitle_ReturnsCorrectRecipe()
     {
         #region Arrange
-        Recipe recipe = new RecipeBuilder().Build();
-        Recipe newRecipe = await _recipeRepository.Create(recipe);
+        Recipe unSavedRecipe = new RecipeBuilder().Build();
+        Recipe savedRecipe = await _recipeRepository.Create(unSavedRecipe);
         #endregion
 
         #region Act
-        Recipe? savedRecipe = await _recipeRepository.GetOne(newRecipe.Title);
+        Recipe? retrievedRecipe = await _recipeRepository.GetOne(savedRecipe.Title);
         #endregion
 
         #region Assert
-        Assert.NotNull(savedRecipe);
-        Assert.Equal(newRecipe.Title, savedRecipe.Title);
-        Assert.Equal(newRecipe.Description, savedRecipe.Description);
+        Assert.NotNull(retrievedRecipe);
+        Assert.Equal(savedRecipe.Title, retrievedRecipe.Title);
+        Assert.Equal(savedRecipe.Description, retrievedRecipe.Description);
         #endregion
     }
 
@@ -82,13 +82,13 @@ public partial class RecipeRepositoryTests
     [Fact]
     public async Task GetAllRecipes_ReturnsAllRecipes() {
         #region Arrange
-            Recipe[] recipes = {
+            Recipe[] unSavedRecipes = {
                 new RecipeBuilder().WithTitle($"Tomato Omelette").Build(),
                 new RecipeBuilder().WithTitle($"Cheese and Garlic").Build(),
                 new RecipeBuilder().WithTitle($"Raisin Baisin").Build()
             };
 
-            foreach (Recipe recipe in recipes) {
+            foreach (Recipe recipe in unSavedRecipes) {
                 await _recipeRepository.Create(recipe);
             }
         #endregion
@@ -99,8 +99,8 @@ public partial class RecipeRepositoryTests
 
         #region Assert
             Assert.NotNull(savedRecipes);
-            Assert.Equal(recipes.Length, savedRecipes.Count);
-            Assert.Contains(savedRecipes, (recipe) => recipe.Title.Equals(recipes[0].Title));
+            Assert.Equal(unSavedRecipes.Length, savedRecipes.Count);
+            Assert.Contains(savedRecipes, (recipe) => recipe.Title.Equals(unSavedRecipes[0].Title));
         #endregion
     }
 
