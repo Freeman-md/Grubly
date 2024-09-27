@@ -26,43 +26,55 @@ public class TestFixtureBase
         ResetDatabase();
     }
 
-    public async Task SeedData()
+    public async Task SeedData(int numIngredients = 2, int numCategories = 2, int numRecipes = 2)
     {
-        var ingredient1 = new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" };
-        var ingredient2 = new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" };
-        var category = new Category { Name = "Breakfast" };
-        var category2 = new Category { Name = "Lunch" };
+        var ingredients = new List<Ingredient>();
+        var categories = new List<Category>();
 
-        var recipe1 = new Recipe
+        // Generate Ingredients
+        for (int i = 1; i <= numIngredients; i++)
         {
-            Title = "Tomato Omelette",
-            Description = "A simple and delicious tomato omelette.",
-            Instructions = "1. Beat the eggs.\n2. Chop tomatoes and garlic.\n3. Heat olive oil in a pan.\n4. Sauté garlic and tomatoes.\n5. Pour eggs and cook until done.",
-            CuisineType = CuisineType.Italian,
-            DifficultyLevel = DifficultyLevel.Easy,
-            ImageUrl = "https://example.com/tomato_omelette.jpg",
-            Ingredients = new List<Ingredient> { ingredient1, ingredient2 },
-            Categories = new List<Category> { category }
-        };
+            ingredients.Add(new Ingredient
+            {
+                Name = $"Ingredient {i}",
+                Description = $"Description for Ingredient {i}"
+            });
+        }
 
-        var recipe2 = new Recipe
+        // Generate Categories
+        for (int i = 1; i <= numCategories; i++)
         {
-            Title = "Garlic Pasta",
-            Description = "Delicious garlic pasta with olive oil and fresh herbs.",
-            Instructions = "1. Boil the pasta.\n2. Heat olive oil in a pan.\n3. Add garlic and sauté.\n4. Mix pasta with garlic oil.\n5. Serve with herbs.",
-            CuisineType = CuisineType.Italian,
-            DifficultyLevel = DifficultyLevel.Medium,
-            ImageUrl = "https://example.com/garlic_pasta.jpg",
-            Ingredients = new List<Ingredient> { ingredient2 },
-            Categories = new List<Category> { category2 }
-        };
+            categories.Add(new Category
+            {
+                Name = $"Category {i}"
+            });
+        }
 
-        DbContext.Ingredients.AddRange(ingredient1, ingredient2);
-        DbContext.Categories.AddRange(category, category2);
-        DbContext.Recipes.AddRange(recipe1, recipe2);
+        // Generate Recipes
+        var recipes = new List<Recipe>();
+        for (int i = 1; i <= numRecipes; i++)
+        {
+            recipes.Add(new Recipe
+            {
+                Title = $"Recipe {i}",
+                Description = $"A simple and delicious Recipe {i}.",
+                Instructions = $"1. Step 1 for Recipe {i}\n2. Step 2 for Recipe {i}",
+                CuisineType = CuisineType.Italian,
+                DifficultyLevel = DifficultyLevel.Easy,
+                ImageUrl = $"https://example.com/recipe_{i}.jpg",
+                Ingredients = ingredients.Take(2).ToList(),  // Use first two ingredients
+                Categories = categories.Take(1).ToList()  // Use first category
+            });
+        }
+
+        // Add to DbContext
+        DbContext.Ingredients.AddRange(ingredients);
+        DbContext.Categories.AddRange(categories);
+        DbContext.Recipes.AddRange(recipes);
 
         await DbContext.SaveChangesAsync();
     }
+
 
     public void ResetDatabase()
     {

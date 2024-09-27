@@ -12,8 +12,9 @@ using Microsoft.EntityFrameworkCore.Migrations.Operations;
 
 namespace Grubly.Tests.Unit.Repository;
 
-public class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
+public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
 {
+    private readonly TestFixtureBase _fixture;
     private readonly GrublyContext _dbContext;
     private readonly RecipeRepository _recipeRepository;
 
@@ -22,6 +23,8 @@ public class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
 
     public RecipeRepositoryTests(TestFixtureBase fixture)
     {
+        _fixture = fixture;
+        
         _dbContext = fixture.DbContext;
         _recipeRepository = new RecipeRepository(_dbContext);
         _ingredientRepository = new IngredientRepository(_dbContext);
@@ -40,7 +43,7 @@ public class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Assert
-        Recipe? savedRecipe = await _dbContext.Recipes.FirstOrDefaultAsync(recipe => recipe.Title == newRecipe.Title);
+        Recipe? savedRecipe = await _recipeRepository.GetOne(newRecipe.Title);
         Assert.NotNull(savedRecipe);
         Assert.Equal(newRecipe.Title, savedRecipe.Title);
         #endregion
@@ -124,22 +127,22 @@ public class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     }
 
     [Fact]
-public async Task CreateRecipe_InvalidForeignKey_ThrowsForeignKeyViolationException()
-{
-    #region Arrange
+    public async Task CreateRecipe_InvalidForeignKey_ThrowsForeignKeyViolationException()
+    {
+        #region Arrange
         var invalidIngredient = new Ingredient { ID = 999, Name = "Non-Existent Ingredient" }; // Invalid ID
-    var invalidCategory = new Category { ID = 999, Name = "Non-Existent Category" }; // Invalid ID
+        var invalidCategory = new Category { ID = 999, Name = "Non-Existent Category" }; // Invalid ID
 
-    // Build the recipe with these non-existent entities
-    Recipe newRecipe = new RecipeBuilder()
-        .WithTitle("Invalid Recipe")
-        .WithIngredients(invalidIngredient)  // Invalid reference
-        .WithCategories(invalidCategory)     // Invalid reference
-        .Build();
-    #endregion
+        // Build the recipe with these non-existent entities
+        Recipe newRecipe = new RecipeBuilder()
+            .WithTitle("Invalid Recipe")
+            .WithIngredients(invalidIngredient)  // Invalid reference
+            .WithCategories(invalidCategory)     // Invalid reference
+            .Build();
+        #endregion
 
-    #region Act & Assert
-    await Assert.ThrowsAsync<DbUpdateException>(() => _recipeRepository.Create(newRecipe));
-    #endregion
-}
+        #region Act & Assert
+        await Assert.ThrowsAsync<DbUpdateException>(() => _recipeRepository.Create(newRecipe));
+        #endregion
+    }
 }

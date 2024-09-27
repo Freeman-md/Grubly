@@ -28,6 +28,14 @@ public class RecipeRepository : IRecipeRepository
         throw new NotImplementedException();
     }
 
+    public Task<Recipe?> GetOne(int id) {
+        throw new NotImplementedException();
+    }
+
+    public Task<Recipe?> GetOne(string title) {
+        throw new NotImplementedException();
+    }
+
     public Task<Recipe?> GetOneWithAllDetails(int id)
     {
         throw new NotImplementedException();
