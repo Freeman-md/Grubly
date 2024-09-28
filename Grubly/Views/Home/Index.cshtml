@@ -29,7 +29,7 @@ ViewData["Title"] = "Home Page";
             };
 
             foreach (var recipe in FeaturedRecipes) {
-            @Html.Partial("_FeaturedRecipe", recipe);
+                <partial name="_FeaturedRecipe" model="recipe" />
             }
             }
         </div>
@@ -47,7 +47,7 @@ ViewData["Title"] = "Home Page";
             };
 
             foreach (var category in RecipeCategories) {
-            @Html.Partial("_RecipeCategory", category);
+                <partial name="_RecipeCategory" model="category" />
             }
             }
         </div>
