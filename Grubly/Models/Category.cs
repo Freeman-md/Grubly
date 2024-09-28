@@ -5,7 +5,7 @@
         public int ID { get; set; }
         public required string Name { get; set; }
 
-        public ICollection<Recipe>? Recipes { get; set; }
+        public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
 
     }
 }

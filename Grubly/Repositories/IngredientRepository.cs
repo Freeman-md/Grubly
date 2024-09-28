@@ -28,7 +28,12 @@ public class IngredientRepository : IIngredientRepository
         throw new NotImplementedException();
     }
 
-    public Task<Ingredient> GetById(int id)
+    public Task<Ingredient> GetOne(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Ingredient> GetOne(string name)
     {
         throw new NotImplementedException();
     }

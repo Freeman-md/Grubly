@@ -7,6 +7,6 @@
 
         public string? Description { get; set; }
 
-        public ICollection<Recipe>? Recipes { get; set; }
+        public ICollection<Recipe> Recipes { get; set; } = new List<Recipe>();
     }
 }

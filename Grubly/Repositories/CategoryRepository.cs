@@ -29,7 +29,12 @@ public class CategoryRepository : ICategoryRepository
         throw new NotImplementedException();
     }
 
-    public Task<Category> GetById(int id)
+    public Task<Category> GetOne(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Category> GetOne(string name)
     {
         throw new NotImplementedException();
     }

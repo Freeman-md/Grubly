@@ -23,8 +23,8 @@
         public required DifficultyLevel DifficultyLevel { get; set; }
         public string? ImageUrl { get; set; }
 
-        public ICollection<Ingredient>? Ingredients { get; set; }
-        public ICollection<Category>? Categories { get; set; }
-        public ICollection<Rating>? Ratings { get; set; }
+        public ICollection<Ingredient> Ingredients { get; set; } = new List<Ingredient>();
+        public ICollection<Category> Categories { get; set; } = new List<Category>();
+        public ICollection<Rating> Ratings { get; set; } = new List<Rating>();
     }
 }
