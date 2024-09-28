@@ -14,21 +14,13 @@ namespace Grubly.Tests.Unit.Repository;
 
 public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
 {
-    private readonly TestFixtureBase _fixture;
     private readonly GrublyContext _dbContext;
     private readonly RecipeRepository _recipeRepository;
 
-    private readonly IngredientRepository _ingredientRepository;
-    private readonly CategoryRepository _categoryRepository;
-
     public RecipeRepositoryTests(TestFixtureBase fixture)
     {
-        _fixture = fixture;
-
         _dbContext = fixture.DbContext;
         _recipeRepository = new RecipeRepository(_dbContext);
-        _ingredientRepository = new IngredientRepository(_dbContext);
-        _categoryRepository = new CategoryRepository(_dbContext);
     }
 
     [Fact]

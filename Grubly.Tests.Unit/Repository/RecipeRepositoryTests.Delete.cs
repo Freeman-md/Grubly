@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using Grubly.Models;
 using Grubly.Tests.Unit.Builders;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grubly.Tests.Unit.Repository;
 
@@ -78,7 +79,7 @@ public partial class RecipeRepositoryTests
 
         foreach (var ingredient in ingredients)
         {
-            Ingredient? existingIngredient = await _ingredientRepository.GetOne(ingredient.Name);
+            Ingredient? existingIngredient = await _dbContext.Ingredients.FirstOrDefaultAsync((i) => i.Name == ingredient.Name);
             Assert.NotNull(existingIngredient);
 
             Assert.DoesNotContain(existingIngredient.Recipes, (recipe) => recipe.ID == savedRecipe.ID);
@@ -86,7 +87,7 @@ public partial class RecipeRepositoryTests
 
         foreach (var category in categories)
         {
-            Category? existingCategory = await _categoryRepository.GetOne(category.Name);
+            Category? existingCategory = await _dbContext.Categories.FirstOrDefaultAsync((c) => c.Name == category.Name);
             Assert.NotNull(existingCategory);
 
             Assert.DoesNotContain(existingCategory.Recipes, (recipe) => recipe.ID == savedRecipe.ID);
