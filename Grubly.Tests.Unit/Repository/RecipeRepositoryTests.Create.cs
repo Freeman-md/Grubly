@@ -21,6 +21,8 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     {
         _dbContext = fixture.DbContext;
         _recipeRepository = new RecipeRepository(_dbContext);
+
+        fixture.ResetDatabase();
     }
 
     [Fact]

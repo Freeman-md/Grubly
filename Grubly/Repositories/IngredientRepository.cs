@@ -38,6 +38,14 @@ public class IngredientRepository : IIngredientRepository
         throw new NotImplementedException();
     }
 
+    public Task<Ingredient> GetOneWithAllDetails(int id) {
+        throw new NotImplementedException();
+    }
+
+    public Task<Ingredient> GetOneWithAllDetails(string name) {
+        throw new NotImplementedException();
+    }
+
     public Task<Ingredient> Update(Ingredient ingredient, int id)
     {
         throw new NotImplementedException();
