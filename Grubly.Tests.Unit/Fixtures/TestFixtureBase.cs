@@ -76,10 +76,10 @@ public class TestFixtureBase
     }
 
 
-    public void ResetDatabase()
+    public async Task ResetDatabase()
     {
-        DbContext.Database.EnsureDeleted();
-        DbContext.Database.EnsureCreated();
+        await DbContext.Database.EnsureDeletedAsync();
+        await DbContext.Database.EnsureCreatedAsync();
     }
 
 }

@@ -19,7 +19,7 @@ public partial class IngredientRepositoryTests : IClassFixture<TestFixtureBase>
         _dbContext = fixture.DbContext;
         _ingredientRepository = new IngredientRepository(_dbContext);
 
-        fixture.ResetDatabase();
+        fixture.ResetDatabase().Wait();
     }
 
     [Fact]
