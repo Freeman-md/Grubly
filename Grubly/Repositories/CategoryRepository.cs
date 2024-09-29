@@ -39,6 +39,16 @@ public class CategoryRepository : ICategoryRepository
         throw new NotImplementedException();
     }
 
+    public Task<Category> GetOneWithAllDetails(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Category> GetOneWithAllDetails(string name)
+    {
+        throw new NotImplementedException();
+    }
+
     public Task<Category> Update(Category category, int id)
     {
         throw new NotImplementedException();
