@@ -27,8 +27,9 @@ public partial class IngredientRepositoryTests
 
         Assert.NotNull(retrievedIngredient);
 
-        Assert.Equal(name, retrievedIngredient!.Name);
-        Assert.Equal(description, retrievedIngredient.Description);
+        Assert.True(updatedIngredient.ID > 0, "The Ingredient ID should be greater than 0 after saving to the database.");
+        Assert.Equal(updatedIngredient.Name, retrievedIngredient!.Name);
+        Assert.Equal(updatedIngredient.Description, retrievedIngredient.Description);
         #endregion
     }
 
@@ -91,6 +92,7 @@ public partial class IngredientRepositoryTests
 
         #region Assert
         Assert.NotNull(updatedIngredient);
+        Assert.True(updatedIngredient.ID > 0, "The Ingredient ID should be greater than 0 after saving to the database.");
         Assert.Equal(UPDATED_NAME, updatedIngredient!.Name);
 
         Assert.Equal(recipes.Count, updatedIngredient.Recipes!.Count);

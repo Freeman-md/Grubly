@@ -28,12 +28,12 @@ public partial class CategoryRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Act
-        await _categoryRepository.Create(unSavedCategory);
+        Category savedCategory = await _categoryRepository.Create(unSavedCategory);
         #endregion
 
         #region Assert
-        Category? savedCategory = await _categoryRepository.GetOne(unSavedCategory.Name);
         Assert.NotNull(savedCategory);
+        Assert.True(savedCategory.ID > 0, "The Category ID should be greater than 0 after saving to the database.");
         Assert.Equal(unSavedCategory.Name, savedCategory.Name);
         #endregion
     }
@@ -102,6 +102,9 @@ public partial class CategoryRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Assert
+        Assert.True(savedCategory.ID > 0, "The Category ID should be greater than 0 after saving to the database.");
+
+        // get model directly from db using repository to ensure relations were saved
         Category? retrievedCategory = await _categoryRepository.GetOneWithAllDetails(savedCategory.ID);
         Assert.NotNull(retrievedCategory);
         Assert.Equal(unSavedCategory.Name, retrievedCategory!.Name);

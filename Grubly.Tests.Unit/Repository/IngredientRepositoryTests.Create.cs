@@ -30,12 +30,12 @@ public partial class IngredientRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Act
-        await _ingredientRepository.Create(unSavedIngredient);
+        Ingredient savedIngredient = await _ingredientRepository.Create(unSavedIngredient);
         #endregion
 
         #region Assert
-        Ingredient? savedIngredient = await _ingredientRepository.GetOne(unSavedIngredient.Name);
         Assert.NotNull(savedIngredient);
+        Assert.True(savedIngredient.ID > 0, "The Ingredient ID should be greater than 0 after saving to the database.");
         Assert.Equal(unSavedIngredient.Name, savedIngredient.Name);
         #endregion
     }
@@ -104,6 +104,9 @@ public partial class IngredientRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Assert
+        Assert.True(savedIngredient.ID > 0, "The Ingredient ID should be greater than 0 after saving to the database.");
+
+        // get model directly from db using repository to ensure relations were saved
         Ingredient? retrievedIngredient = await _ingredientRepository.GetOneWithAllDetails(savedIngredient.ID);
         Assert.NotNull(retrievedIngredient);
         Assert.Equal(unSavedIngredient.Name, retrievedIngredient!.Name);

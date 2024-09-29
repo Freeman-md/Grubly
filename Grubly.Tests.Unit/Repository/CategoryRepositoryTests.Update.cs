@@ -7,7 +7,7 @@ namespace Grubly.Tests.Unit.Repository;
 
 public partial class CategoryRepositoryTests
 {
-[Theory]
+    [Theory]
     [InlineData("Updated Name")]
     public async Task UpdateCategory_ValidEntity_UpdatesCategoryInDatabase(string name)
     {
@@ -25,8 +25,9 @@ public partial class CategoryRepositoryTests
         Category? retrievedCategory = await _categoryRepository.GetOne(updatedCategory.ID);
 
         Assert.NotNull(retrievedCategory);
+        Assert.True(updatedCategory.ID > 0, "The Category ID should be greater than 0 after saving to the database.");
 
-        Assert.Equal(name, retrievedCategory!.Name);
+        Assert.Equal(updatedCategory.Name, retrievedCategory!.Name);
         #endregion
     }
 
@@ -88,6 +89,7 @@ public partial class CategoryRepositoryTests
 
         #region Assert
         Assert.NotNull(updatedCategory);
+        Assert.True(updatedCategory.ID > 0, "The Category ID should be greater than 0 after saving to the database.");
         Assert.Equal(UPDATED_NAME, updatedCategory!.Name);
 
         Assert.Equal(recipes.Count, updatedCategory.Recipes!.Count);

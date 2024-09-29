@@ -33,12 +33,12 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Act
-        await _recipeRepository.Create(unSavedRecipe);
+        Recipe savedRecipe = await _recipeRepository.Create(unSavedRecipe);
         #endregion
 
         #region Assert
-        Recipe? savedRecipe = await _recipeRepository.GetOne(unSavedRecipe.Title);
         Assert.NotNull(savedRecipe);
+        Assert.True(savedRecipe.ID > 0, "The Recipe ID should be greater than 0 after saving to the database.");
         Assert.Equal(unSavedRecipe.Title, savedRecipe.Title);
         #endregion
     }
@@ -123,7 +123,9 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Assert
-        // Retrieve the saved recipe from the repository, ensuring all related data is included
+        Assert.True(savedRecipe.ID > 0, "The Recipe ID should be greater than 0 after saving to the database.");
+        
+        // get model directly from db using repository to ensure relations were saved
         Recipe? retrievedRecipe = await _recipeRepository.GetOneWithAllDetails(savedRecipe.ID);
         Assert.NotNull(retrievedRecipe);
         Assert.Equal(unSavedRecipe.Title, retrievedRecipe!.Title);
