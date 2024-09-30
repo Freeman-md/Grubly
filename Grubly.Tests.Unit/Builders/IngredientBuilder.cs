@@ -11,7 +11,7 @@ public class IngredientBuilder
     {
         _ingredient = new Ingredient
         {
-            Name = "Default Ingredient",
+            Name = Guid.NewGuid().ToString(),
         };
     }
 

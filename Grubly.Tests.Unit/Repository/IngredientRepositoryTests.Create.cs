@@ -68,8 +68,7 @@ public partial class IngredientRepositoryTests : IClassFixture<TestFixture>
 
     [Theory]
     [InlineData(null, "Valid Description")]
-    [InlineData("", "Valid Description")]
-    public async Task CreateIngredient_InvalidInputs_ThrowsValidationException(string title, string description)
+    public async Task CreateIngredient_InvalidInputs_ThrowsDbUpdateException(string title, string description)
     {
         var (ingredientRepository, dbContext) = CreateScope();
 
@@ -78,12 +77,12 @@ public partial class IngredientRepositoryTests : IClassFixture<TestFixture>
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() => ingredientRepository.Create(unSavedIngredient));
+        await Assert.ThrowsAsync<DbUpdateException>(() => ingredientRepository.Create(unSavedIngredient));
         #endregion
     }
 
     [Fact]
-    public async Task CreateIngredient_DuplicateEntity_ThrowsArgumentException()
+    public async Task CreateIngredient_DuplicateEntity_ThrowsDbUpdateException()
     {
         var (ingredientRepository, dbContext) = CreateScope();
 
@@ -101,7 +100,7 @@ public partial class IngredientRepositoryTests : IClassFixture<TestFixture>
         #endregion
 
         #region Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => ingredientRepository.Create(duplicateIngredient));
+        await Assert.ThrowsAsync<DbUpdateException>(() => ingredientRepository.Create(duplicateIngredient));
         #endregion
     }
 

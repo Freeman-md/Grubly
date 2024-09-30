@@ -12,7 +12,7 @@ public class RecipeBuilder
         // Default recipe initialization
         _recipe = new Recipe
         {
-            Title = "Default Recipe",
+            Title = Guid.NewGuid().ToString(),
             Description = "A default recipe description.",
             Instructions = "1. Default step 1\n2. Default step 2",
             CuisineType = CuisineType.Italian,

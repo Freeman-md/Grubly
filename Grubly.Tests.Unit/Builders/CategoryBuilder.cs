@@ -11,7 +11,7 @@ public class CategoryBuilder
     {
         _category = new Category
         {
-            Name = "Default Category",
+            Name = Guid.NewGuid().ToString(),
         };
     }
 
