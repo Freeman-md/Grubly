@@ -17,7 +17,8 @@ public class IngredientRepository : IIngredientRepository
 
     public async Task<Ingredient> Create(Ingredient ingredient)
     {
-        if (ingredient == null) {
+        if (ingredient == null)
+        {
             throw new ArgumentNullException(nameof(ingredient));
         }
 
@@ -31,9 +32,18 @@ public class IngredientRepository : IIngredientRepository
         return ingredient;
     }
 
-    public Task Delete(int id)
+    public async Task Delete(int id)
     {
-        throw new NotImplementedException();
+        Ingredient ingredient = await this.GetOne(id);
+
+        if (ingredient == null)
+        {
+            throw new KeyNotFoundException($"Ingredient with ID {id} not found.");
+        }
+
+        _grublyContext.Ingredients.Remove(ingredient);
+
+        await _grublyContext.SaveChangesAsync();
     }
 
     public Task<IReadOnlyList<Ingredient>> GetAll()
@@ -41,22 +51,22 @@ public class IngredientRepository : IIngredientRepository
         throw new NotImplementedException();
     }
 
-    public Task<Ingredient> GetOne(int id)
+    public async Task<Ingredient?> GetOne(int id)
+    {
+        return await _grublyContext.Ingredients.FindAsync(id);
+    }
+
+    public async Task<Ingredient?> GetOne(string name)
+    {
+        return await _grublyContext.Ingredients.FirstOrDefaultAsync(ingredient => ingredient.Name == name);
+    }
+
+    public Task<Ingredient?> GetOneWithAllDetails(int id)
     {
         throw new NotImplementedException();
     }
 
-    public Task<Ingredient> GetOne(string name)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Ingredient> GetOneWithAllDetails(int id)
-    {
-        throw new NotImplementedException();
-    }
-
-    public Task<Ingredient> GetOneWithAllDetails(string name)
+    public Task<Ingredient?> GetOneWithAllDetails(string name)
     {
         throw new NotImplementedException();
     }
