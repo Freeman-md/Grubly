@@ -29,6 +29,9 @@ public partial class IngredientRepositoryTests : IClassFixture<TestFixture>
         var ingredientRepository = scopedServices.GetRequiredService<IIngredientRepository>();
         var dbContext = scopedServices.GetRequiredService<GrublyContext>();
 
+        dbContext.Database.EnsureDeleted();
+        dbContext.Database.EnsureCreated();
+
         return (ingredientRepository, dbContext);
     }
 

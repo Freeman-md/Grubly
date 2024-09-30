@@ -24,7 +24,7 @@ public class TestFixture : IDisposable
         _connection.Open();
 
         services.AddDbContext<GrublyContext>(options =>
-            options.UseSqlite(_connection)); 
+            options.UseSqlite(_connection));
 
         services.AddScoped<IIngredientRepository, IngredientRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
@@ -42,6 +42,10 @@ public class TestFixture : IDisposable
 
     public void Dispose()
     {
+        var dbContext = ServiceProvider.GetService<GrublyContext>();
+
+        dbContext?.Database.EnsureDeleted();
+
         _connection.Close();
         _connection.Dispose();
     }

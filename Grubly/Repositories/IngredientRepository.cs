@@ -46,9 +46,9 @@ public class IngredientRepository : IIngredientRepository
         await _grublyContext.SaveChangesAsync();
     }
 
-    public Task<IReadOnlyList<Ingredient>> GetAll()
+    public async Task<IReadOnlyList<Ingredient>> GetAll()
     {
-        throw new NotImplementedException();
+        return await _grublyContext.Ingredients.ToListAsync();
     }
 
     public async Task<Ingredient?> GetOne(int id)
