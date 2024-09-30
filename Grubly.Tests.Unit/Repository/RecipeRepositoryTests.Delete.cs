@@ -11,16 +11,18 @@ public partial class RecipeRepositoryTests
     [Fact]
     public async Task DeleteRecipe_ValidId_RemovesRecipeFromDatabase()
     {
+        var (recipeRepository, dbContext) = CreateScope();
+        
         #region Arrange
-        Recipe savedRecipe = await _recipeRepository.Create(new RecipeBuilder().Build());
+        Recipe savedRecipe = await recipeRepository.Create(new RecipeBuilder().Build());
         #endregion
 
         #region Act
-        await _recipeRepository.Delete(savedRecipe.ID);
+        await recipeRepository.Delete(savedRecipe.ID);
         #endregion
 
         #region Assert
-        Recipe? nullRecipe = await _recipeRepository.GetOne(savedRecipe.ID);
+        Recipe? nullRecipe = await recipeRepository.GetOne(savedRecipe.ID);
         Assert.Null(nullRecipe);
         #endregion
     }
@@ -28,21 +30,25 @@ public partial class RecipeRepositoryTests
     [Fact]
     public async Task DeleteRecipe_InvalidId_ThrowsNotFoundException()
     {
+        var (recipeRepository, dbContext) = CreateScope();
+        
         //TODO: Create a NotFoundException Class in main project and use here
 
         #region Arrange
-        Recipe savedRecipe = await _recipeRepository.Create(new RecipeBuilder().Build());
-        await _recipeRepository.Delete(savedRecipe.ID);
+        Recipe savedRecipe = await recipeRepository.Create(new RecipeBuilder().Build());
+        await recipeRepository.Delete(savedRecipe.ID);
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<Exception>(async () => await _recipeRepository.Delete(savedRecipe.ID));
+        await Assert.ThrowsAsync<Exception>(async () => await recipeRepository.Delete(savedRecipe.ID));
         #endregion
     }
 
     [Fact]
     public async Task DeleteRecipe_WithManyToManyRelationships_RemovesLinksButKeepsEntities()
     {
+        var (recipeRepository, dbContext) = CreateScope();
+        
         #region Arrange
         // Define ingredients
         Ingredient[] ingredients = {
@@ -57,11 +63,11 @@ public partial class RecipeRepositoryTests
         };
 
         // Add ingredients and categories to the context
-        _dbContext.Ingredients.AddRange(ingredients);
-        _dbContext.Categories.AddRange(categories);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Ingredients.AddRange(ingredients);
+        dbContext.Categories.AddRange(categories);
+        await dbContext.SaveChangesAsync();
 
-        Recipe savedRecipe = await _recipeRepository.Create(
+        Recipe savedRecipe = await recipeRepository.Create(
                                                             new RecipeBuilder()
                                                             .WithIngredients(ingredients)
                                                             .WithCategories(categories)
@@ -70,16 +76,16 @@ public partial class RecipeRepositoryTests
         #endregion
 
         #region Act
-        await _recipeRepository.Delete(savedRecipe.ID);
+        await recipeRepository.Delete(savedRecipe.ID);
         #endregion
 
         #region Assert
-        Recipe? nullRecipe = await _recipeRepository.GetOne(savedRecipe.ID);
+        Recipe? nullRecipe = await recipeRepository.GetOne(savedRecipe.ID);
         Assert.Null(nullRecipe);
 
         foreach (var ingredient in ingredients)
         {
-            Ingredient? existingIngredient = await _dbContext.Ingredients.FirstOrDefaultAsync((i) => i.Name == ingredient.Name);
+            Ingredient? existingIngredient = await dbContext.Ingredients.FirstOrDefaultAsync((i) => i.Name == ingredient.Name);
             Assert.NotNull(existingIngredient);
 
             Assert.DoesNotContain(existingIngredient.Recipes, (recipe) => recipe.ID == savedRecipe.ID);
@@ -87,7 +93,7 @@ public partial class RecipeRepositoryTests
 
         foreach (var category in categories)
         {
-            Category? existingCategory = await _dbContext.Categories.FirstOrDefaultAsync((c) => c.Name == category.Name);
+            Category? existingCategory = await dbContext.Categories.FirstOrDefaultAsync((c) => c.Name == category.Name);
             Assert.NotNull(existingCategory);
 
             Assert.DoesNotContain(existingCategory.Recipes, (recipe) => recipe.ID == savedRecipe.ID);

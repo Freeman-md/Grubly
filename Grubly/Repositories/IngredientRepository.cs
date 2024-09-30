@@ -13,9 +13,11 @@ public class IngredientRepository : IIngredientRepository
         _grublyContext = grublyContext;
     }
 
-    public Task<Ingredient> Create(Ingredient ingredient)
+    public async Task<Ingredient> Create(Ingredient ingredient)
     {
-        throw new NotImplementedException();
+        await _grublyContext.Ingredients.AddAsync(ingredient);
+        await _grublyContext.SaveChangesAsync();
+        return ingredient;
     }
 
     public Task Delete(int id)

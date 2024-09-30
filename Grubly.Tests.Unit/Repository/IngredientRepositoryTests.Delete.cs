@@ -11,16 +11,18 @@ public partial class IngredientRepositoryTests
     [Fact]
     public async Task DeleteIngredient_ValidId_RemovesIngredientFromDatabase()
     {
+        var (ingredientRepository, dbContext) = CreateScope();
+
         #region Arrange
-        Ingredient savedIngredient = await _ingredientRepository.Create(new IngredientBuilder().Build());
+        Ingredient savedIngredient = await ingredientRepository.Create(new IngredientBuilder().Build());
         #endregion
 
         #region Act
-        await _ingredientRepository.Delete(savedIngredient.ID);
+        await ingredientRepository.Delete(savedIngredient.ID);
         #endregion
 
         #region Assert
-        Ingredient? nullIngredient = await _ingredientRepository.GetOne(savedIngredient.ID);
+        Ingredient? nullIngredient = await ingredientRepository.GetOne(savedIngredient.ID);
         Assert.Null(nullIngredient);
         #endregion
     }
@@ -28,29 +30,33 @@ public partial class IngredientRepositoryTests
     [Fact]
     public async Task DeleteIngredient_InvalidId_ThrowsNotFoundException()
     {
+        var (ingredientRepository, dbContext) = CreateScope();
+
         //TODO: Create a NotFoundException Class in main project and use here
 
         #region Arrange
-        Ingredient savedIngredient = await _ingredientRepository.Create(new IngredientBuilder().Build());
-        await _ingredientRepository.Delete(savedIngredient.ID);
+        Ingredient savedIngredient = await ingredientRepository.Create(new IngredientBuilder().Build());
+        await ingredientRepository.Delete(savedIngredient.ID);
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<Exception>(async () => await _ingredientRepository.Delete(savedIngredient.ID));
+        await Assert.ThrowsAsync<Exception>(async () => await ingredientRepository.Delete(savedIngredient.ID));
         #endregion
     }
 
     [Fact]
     public async Task DeleteIngredient_WithManyToManyRelationships_RemovesLinksButKeepsEntities()
     {
+        var (ingredientRepository, dbContext) = CreateScope();
+
         #region Arrange
         const int NUMBER_OF_CREATED_RECIPES = 3;
         List<Recipe> recipes = RecipeBuilder.BuildMany(NUMBER_OF_CREATED_RECIPES);
 
-        _dbContext.Recipes.AddRange(recipes);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Recipes.AddRange(recipes);
+        await dbContext.SaveChangesAsync();
 
-        Ingredient savedIngredient = await _ingredientRepository.Create(
+        Ingredient savedIngredient = await ingredientRepository.Create(
                                                             new IngredientBuilder()
                                                             .WithRecipes(recipes.ToArray())
                                                             .Build()
@@ -58,16 +64,16 @@ public partial class IngredientRepositoryTests
         #endregion
 
         #region Act
-        await _ingredientRepository.Delete(savedIngredient.ID);
+        await ingredientRepository.Delete(savedIngredient.ID);
         #endregion
 
         #region Assert
-        Ingredient? nullIngredient = await _ingredientRepository.GetOne(savedIngredient.ID);
+        Ingredient? nullIngredient = await ingredientRepository.GetOne(savedIngredient.ID);
         Assert.Null(nullIngredient);
 
         foreach (var recipe in recipes)
         {
-            Recipe? existingRecipe = await _dbContext.Recipes.FirstOrDefaultAsync((recipe) => recipe.Title == recipe.Title);
+            Recipe? existingRecipe = await dbContext.Recipes.FirstOrDefaultAsync((recipe) => recipe.Title == recipe.Title);
             Assert.NotNull(existingRecipe);
 
             Assert.DoesNotContain(existingRecipe.Ingredients, (recipe) => recipe.ID == savedIngredient.ID);

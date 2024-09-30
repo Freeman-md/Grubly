@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using System.Diagnostics.CodeAnalysis;
 using Grubly.Data;
+using Grubly.Interfaces.Repositories;
 using Grubly.Models;
 using Grubly.Repositories;
 using Grubly.Tests.Unit.Builders;
@@ -9,31 +10,41 @@ using Grubly.Tests.Unit.Fixtures;
 using Humanizer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Grubly.Tests.Unit.Repository;
 
-public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
+public partial class RecipeRepositoryTests : IClassFixture<TestFixture>
 {
-    private readonly GrublyContext _dbContext;
-    private readonly RecipeRepository _recipeRepository;
+    private readonly ServiceProvider _serviceProvider;
 
-    public RecipeRepositoryTests(TestFixtureBase fixture)
+    public RecipeRepositoryTests(TestFixture fixture)
     {
-        _dbContext = fixture.DbContext;
-        _recipeRepository = new RecipeRepository(_dbContext);
+        _serviceProvider = fixture.ServiceProvider;
+    }
 
-        fixture.ResetDatabase().Wait();
+    private (IRecipeRepository recipeRepository, GrublyContext dbContext) CreateScope()
+    {
+        var scope = _serviceProvider.CreateScope();
+        var scopedServices = scope.ServiceProvider;
+
+        var recipeRepository = scopedServices.GetRequiredService<IRecipeRepository>();
+        var dbContext = scopedServices.GetRequiredService<GrublyContext>();
+
+        return (recipeRepository, dbContext);
     }
 
     [Fact]
     public async Task CreateRecipe_ValidInput_AddsRecipeToDatabase()
     {
+        var (recipeRepository, dbContext) = CreateScope();
+
         #region Arrange
         Recipe unSavedRecipe = new RecipeBuilder().Build();
         #endregion
 
         #region Act
-        Recipe savedRecipe = await _recipeRepository.Create(unSavedRecipe);
+        Recipe savedRecipe = await recipeRepository.Create(unSavedRecipe);
         #endregion
 
         #region Assert
@@ -46,12 +57,14 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     [Fact]
     public async Task CreateRecipe_NullInput_ThrowsArgumentNullException()
     {
+        var (recipeRepository, dbContext) = CreateScope();
+
         #region Arrange
         Recipe? nullRecipe = null;
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _recipeRepository.Create(nullRecipe!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => recipeRepository.Create(nullRecipe!));
         #endregion
     }
 
@@ -62,35 +75,47 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     [InlineData("Valid Title", "Description too long... (too many characters)", CuisineType.Italian, DifficultyLevel.Easy)]
     public async Task CreateRecipe_InvalidInputs_ThrowsValidationException(string title, string description, CuisineType type, DifficultyLevel difficultyLevel)
     {
+        var (recipeRepository, dbContext) = CreateScope();
+
         #region Arrange
         Recipe unSavedRecipe = new Recipe { Title = title, Description = description, CuisineType = type, DifficultyLevel = difficultyLevel };
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() => _recipeRepository.Create(unSavedRecipe));
+        await Assert.ThrowsAsync<ValidationException>(() => recipeRepository.Create(unSavedRecipe));
         #endregion
     }
 
     [Fact]
     public async Task CreateRecipe_DuplicateEntity_ThrowsArgumentException()
     {
+        var (recipeRepository, dbContext) = CreateScope();
+
         #region Arrange
-        Recipe unSavedRecipe = new RecipeBuilder().Build();
-        Recipe sameRecipe = unSavedRecipe;
+        Recipe originalRecipe = new RecipeBuilder().Build();
+        Recipe duplicateRecipe = new Recipe
+        {
+            Title = originalRecipe.Title,
+            Description = originalRecipe.Description,
+            CuisineType = originalRecipe.CuisineType,
+            DifficultyLevel = originalRecipe.DifficultyLevel,
+        };
         #endregion
 
         #region Act
-        await _recipeRepository.Create(unSavedRecipe);
+        await recipeRepository.Create(originalRecipe);
         #endregion
 
         #region Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => _recipeRepository.Create(sameRecipe));
+        await Assert.ThrowsAsync<ArgumentException>(() => recipeRepository.Create(duplicateRecipe));
         #endregion
     }
 
     [Fact]
     public async Task CreateRecipe_WithRelations_EnsuresCorrectForeignKeysAndSavesRelatedEntities()
     {
+        var (recipeRepository, dbContext) = CreateScope();
+
         #region Arrange
         // Define ingredients
         Ingredient[] ingredients = {
@@ -105,9 +130,9 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     };
 
         // Add ingredients and categories to the context
-        _dbContext.Ingredients.AddRange(ingredients);
-        _dbContext.Categories.AddRange(categories);
-        await _dbContext.SaveChangesAsync();
+        dbContext.Ingredients.AddRange(ingredients);
+        dbContext.Categories.AddRange(categories);
+        await dbContext.SaveChangesAsync();
 
         // Create a new recipe with ingredients and categories
         Recipe unSavedRecipe = new RecipeBuilder()
@@ -119,14 +144,14 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
 
         #region Act
         // Add the recipe to the repository
-        Recipe savedRecipe = await _recipeRepository.Create(unSavedRecipe);
+        Recipe savedRecipe = await recipeRepository.Create(unSavedRecipe);
         #endregion
 
         #region Assert
         Assert.True(savedRecipe.ID > 0, "The Recipe ID should be greater than 0 after saving to the database.");
-        
+
         // get model directly from db using repository to ensure relations were saved
-        Recipe? retrievedRecipe = await _recipeRepository.GetOneWithAllDetails(savedRecipe.ID);
+        Recipe? retrievedRecipe = await recipeRepository.GetOneWithAllDetails(savedRecipe.ID);
         Assert.NotNull(retrievedRecipe);
         Assert.Equal(unSavedRecipe.Title, retrievedRecipe!.Title);
 
@@ -150,6 +175,8 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
     [Fact]
     public async Task CreateRecipe_InvalidForeignKey_ThrowsDbUpdateException()
     {
+        var (recipeRepository, dbContext) = CreateScope();
+
         #region Arrange
         var invalidIngredient = new Ingredient { ID = 999, Name = "Non-Existent Ingredient" }; // Invalid ID
         var invalidCategory = new Category { ID = 999, Name = "Non-Existent Category" }; // Invalid ID
@@ -163,7 +190,7 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixtureBase>
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<DbUpdateException>(() => _recipeRepository.Create(unSavedRecipe));
+        await Assert.ThrowsAsync<DbUpdateException>(() => recipeRepository.Create(unSavedRecipe));
         #endregion
     }
 }
