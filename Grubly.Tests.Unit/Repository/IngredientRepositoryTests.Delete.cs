@@ -44,40 +44,40 @@ public partial class IngredientRepositoryTests
         #endregion
     }
 
-    // [Fact]
-    // public async Task DeleteIngredient_WithManyToManyRelationships_RemovesLinksButKeepsEntities()
-    // {
-    //     var (ingredientRepository, dbContext) = CreateScope();
+    [Fact]
+    public async Task DeleteIngredient_WithManyToManyRelationships_RemovesLinksButKeepsEntities()
+    {
+        var (ingredientRepository, dbContext) = CreateScope();
 
-    //     #region Arrange
-    //     const int NUMBER_OF_CREATED_RECIPES = 3;
-    //     List<Recipe> recipes = RecipeBuilder.BuildMany(NUMBER_OF_CREATED_RECIPES);
+        #region Arrange
+        const int NUMBER_OF_CREATED_RECIPES = 3;
+        List<Recipe> recipes = RecipeBuilder.BuildMany(NUMBER_OF_CREATED_RECIPES);
 
-    //     dbContext.Recipes.AddRange(recipes);
-    //     await dbContext.SaveChangesAsync();
+        dbContext.Recipes.AddRange(recipes);
+        await dbContext.SaveChangesAsync();
 
-    //     Ingredient savedIngredient = await ingredientRepository.Create(
-    //                                                         new IngredientBuilder()
-    //                                                         .WithRecipes(recipes.ToArray())
-    //                                                         .Build()
-    //                                                         );
-    //     #endregion
+        Ingredient savedIngredient = await ingredientRepository.Create(
+                                                            new IngredientBuilder()
+                                                            .WithRecipes(recipes.ToArray())
+                                                            .Build()
+                                                            );
+        #endregion
 
-    //     #region Act
-    //     await ingredientRepository.Delete(savedIngredient.ID);
-    //     #endregion
+        #region Act
+        await ingredientRepository.Delete(savedIngredient.ID);
+        #endregion
 
-    //     #region Assert
-    //     Ingredient? nullIngredient = await ingredientRepository.GetOne(savedIngredient.ID);
-    //     Assert.Null(nullIngredient);
+        #region Assert
+        Ingredient? nullIngredient = await ingredientRepository.GetOne(savedIngredient.ID);
+        Assert.Null(nullIngredient);
 
-    //     foreach (var recipe in recipes)
-    //     {
-    //         Recipe? existingRecipe = await dbContext.Recipes.FirstOrDefaultAsync((recipe) => recipe.Title == recipe.Title);
-    //         Assert.NotNull(existingRecipe);
+        foreach (var recipe in recipes)
+        {
+            Recipe? existingRecipe = await dbContext.Recipes.FirstOrDefaultAsync((recipe) => recipe.Title == recipe.Title);
+            Assert.NotNull(existingRecipe);
 
-    //         Assert.DoesNotContain(existingRecipe.Ingredients, (recipe) => recipe.ID == savedIngredient.ID);
-    //     }
-    //     #endregion
-    // }
+            Assert.DoesNotContain(existingRecipe.Ingredients, (recipe) => recipe.ID == savedIngredient.ID);
+        }
+        #endregion
+    }
 }

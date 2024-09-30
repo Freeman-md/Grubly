@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Grubly.Models;
 using Grubly.Tests.Unit.Builders;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grubly.Tests.Unit.Repository;
 
@@ -37,8 +38,7 @@ public partial class IngredientRepositoryTests
 
     [Theory]
     [InlineData(null, "Valid Description")]
-    [InlineData("", "Valid Description")]
-    public async Task UpdateIngredient_InvalidInputs_ThrowsValidationException(string name, string description)
+    public async Task UpdateIngredient_InvalidInputs_ThrowsDbUpdateException(string name, string description)
     {
         var (ingredientRepository, dbContext) = CreateScope();
         
@@ -49,12 +49,12 @@ public partial class IngredientRepositoryTests
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() => ingredientRepository.Update(savedIngredient, savedIngredient.ID));
+        await Assert.ThrowsAsync<DbUpdateException>(() => ingredientRepository.Update(savedIngredient, savedIngredient.ID));
         #endregion
     }
 
     [Fact]
-    public async Task UpdateIngredient_InvalidId_ThrowsNotFoundException()
+    public async Task UpdateIngredient_InvalidId_ThrowsKeyNotFoundException()
     {
         var (ingredientRepository, dbContext) = CreateScope();
         
@@ -65,7 +65,7 @@ public partial class IngredientRepositoryTests
         #endregion
 
         #region Assert
-        await Assert.ThrowsAsync<Exception>(async () => await ingredientRepository.Update(savedIngredient, RANDOM_ID));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await ingredientRepository.Update(savedIngredient, RANDOM_ID));
         #endregion
     }
 

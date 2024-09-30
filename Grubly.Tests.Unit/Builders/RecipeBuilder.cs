@@ -54,8 +54,8 @@ public class RecipeBuilder
         {
             recipes.Add(new RecipeBuilder()
                 .WithTitle($"Recipe {i + 1}")
-                .WithIngredients(new Ingredient { Name = "Ingredient 1" }, new Ingredient { Name = "Ingredient 2" })
-                .WithCategories(new Category { Name = "Category 1" })
+                .WithIngredients(new Ingredient { Name = Guid.NewGuid().ToString() }, new Ingredient { Name = Guid.NewGuid().ToString() })
+                .WithCategories(new Category { Name = Guid.NewGuid().ToString() })
                 .Build());
         }
         return recipes;

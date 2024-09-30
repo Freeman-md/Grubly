@@ -34,12 +34,14 @@ public class IngredientRepository : IIngredientRepository
 
     public async Task Delete(int id)
     {
-        Ingredient ingredient = await this.GetOne(id);
+        Ingredient? ingredient = await this.GetOneWithAllDetails(id);
 
         if (ingredient == null)
         {
             throw new KeyNotFoundException($"Ingredient with ID {id} not found.");
         }
+
+        ingredient.Recipes.Clear();
 
         _grublyContext.Ingredients.Remove(ingredient);
 
@@ -61,18 +63,38 @@ public class IngredientRepository : IIngredientRepository
         return await _grublyContext.Ingredients.FirstOrDefaultAsync(ingredient => ingredient.Name == name);
     }
 
-    public Task<Ingredient?> GetOneWithAllDetails(int id)
+    public async Task<Ingredient?> GetOneWithAllDetails(int id)
     {
-        throw new NotImplementedException();
+        return await _grublyContext.Ingredients
+            .Include(i => i.Recipes)
+            .FirstOrDefaultAsync(i => i.ID == id);
     }
 
-    public Task<Ingredient?> GetOneWithAllDetails(string name)
+    public async Task<Ingredient?> GetOneWithAllDetails(string name)
     {
-        throw new NotImplementedException();
+         return await _grublyContext.Ingredients
+            .Include(i => i.Recipes)
+            .FirstOrDefaultAsync(i => i.Name == name);
     }
 
-    public Task<Ingredient> Update(Ingredient ingredient, int id)
+    public async Task<Ingredient> Update(Ingredient ingredient, int id)
+{
+    // Retrieve the existing ingredient
+    Ingredient? existingIngredient = await this.GetOneWithAllDetails(id);
+
+    if (existingIngredient == null)
     {
-        throw new NotImplementedException();
+        throw new KeyNotFoundException($"Ingredient with ID {id} not found.");
     }
+
+    // Update basic fields
+    existingIngredient.Name = ingredient.Name;
+    existingIngredient.Description = ingredient.Description;
+
+    // Save changes to the database
+    await _grublyContext.SaveChangesAsync();
+
+    return existingIngredient;
+}
+
 }
