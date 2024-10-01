@@ -34,7 +34,7 @@ public class IngredientRepository : IIngredientRepository
 
     public async Task Delete(int id)
     {
-        Ingredient? ingredient = await this.GetOneWithAllDetails(id);
+        Ingredient? ingredient = await this.GetOne(id);
 
         if (ingredient == null)
         {
@@ -80,7 +80,7 @@ public class IngredientRepository : IIngredientRepository
     public async Task<Ingredient> Update(Ingredient ingredient, int id)
     {
         // Retrieve the existing ingredient
-        Ingredient? existingIngredient = await this.GetOneWithAllDetails(id);
+        Ingredient? existingIngredient = await this.GetOne(id);
 
         if (existingIngredient == null)
         {

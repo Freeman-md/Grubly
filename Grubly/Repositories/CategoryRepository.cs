@@ -35,7 +35,7 @@ public class CategoryRepository : ICategoryRepository
         Category? existingCategory = await this.GetOne(id);
 
         if (existingCategory == null) {
-            throw new KeyNotFoundException(nameof(existingCategory));
+            throw new KeyNotFoundException($"Category with ID {id} not found.");
         }
 
         existingCategory.Recipes.Clear();
@@ -73,8 +73,22 @@ public class CategoryRepository : ICategoryRepository
                             .FirstOrDefaultAsync(category => category.Name == name);
     }
 
-    public Task<Category> Update(Category category, int id)
+    public async Task<Category> Update(Category category, int id)
     {
-        throw new NotImplementedException();
+         Category? existingCategory = await this.GetOne(id);
+
+        if (existingCategory == null) {
+            throw new KeyNotFoundException($"Category with ID {id} not found.");
+        }
+
+        existingCategory.Name = category.Name;
+
+        foreach (Recipe recipe in category.Recipes) {
+            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
+        }
+
+        await _grublyContext.SaveChangesAsync();
+        
+        return existingCategory;
     }
 }

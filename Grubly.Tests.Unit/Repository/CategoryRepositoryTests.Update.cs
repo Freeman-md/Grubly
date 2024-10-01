@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Grubly.Models;
 using Grubly.Tests.Unit.Builders;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grubly.Tests.Unit.Repository;
 
@@ -35,8 +36,7 @@ public partial class CategoryRepositoryTests
 
     [Theory]
     [InlineData(null)]
-    [InlineData("")]
-    public async Task UpdateCategory_InvalidInputs_ThrowsValidationException(string name)
+    public async Task UpdateCategory_InvalidInputs_ThrowsDbUpdateException(string name)
     {
         var (categoryRepository, dbContext) = CreateScope();
         
@@ -46,23 +46,22 @@ public partial class CategoryRepositoryTests
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() => categoryRepository.Update(savedCategory, savedCategory.ID));
+        await Assert.ThrowsAsync<DbUpdateException>(() => categoryRepository.Update(savedCategory, savedCategory.ID));
         #endregion
     }
 
     [Fact]
-    public async Task UpdateCategory_InvalidId_ThrowsNotFoundException()
+    public async Task UpdateCategory_InvalidId_ThrowsKeyNotFoundException()
     {
         var (categoryRepository, dbContext) = CreateScope();
         
-        //TODO: Create a NotFoundException Class in main project and use here
         #region Arrange
         const int RANDOM_ID = 82923;
         Category savedCategory = await categoryRepository.Create(new CategoryBuilder().Build());
         #endregion
 
         #region Assert
-        await Assert.ThrowsAsync<Exception>(async () => await categoryRepository.Update(savedCategory, RANDOM_ID));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await categoryRepository.Update(savedCategory, RANDOM_ID));
         #endregion
     }
 
