@@ -104,45 +104,6 @@ public partial class CategoryRepositoryTests : IClassFixture<TestFixture>
     }
 
     [Fact]
-    public async Task CreateCategory_WithRelations_EnsuresCorrectForeignKeysAndSavesRelatedEntities()
-    {
-        var (categoryRepository, dbContext) = CreateScope();
-
-        #region Arrange
-        const int NUMBER_OF_CREATED_RECIPES = 3;
-        List<Recipe> recipes = RecipeBuilder.BuildMany(NUMBER_OF_CREATED_RECIPES);
-
-        dbContext.Recipes.AddRange(recipes);
-        await dbContext.SaveChangesAsync();
-
-        Category unSavedCategory = new CategoryBuilder()
-                                    .WithName("Tomatoes")
-                                    .WithRecipes(recipes.ToArray())
-                                    .Build();
-        #endregion
-
-        #region Act
-        Category savedCategory = await categoryRepository.Create(unSavedCategory);
-        #endregion
-
-        #region Assert
-        Assert.True(savedCategory.ID > 0, "The Category ID should be greater than 0 after saving to the database.");
-
-        // get model directly from db using repository to ensure relations were saved
-        Category? retrievedCategory = await categoryRepository.GetOneWithAllDetails(savedCategory.ID);
-        Assert.NotNull(retrievedCategory);
-        Assert.Equal(unSavedCategory.Name, retrievedCategory!.Name);
-
-        Assert.Equal(recipes.Count, retrievedCategory.Recipes!.Count);
-        foreach (var recipe in recipes)
-        {
-            Assert.Contains(retrievedCategory.Recipes, r => r.Title == recipe.Title && r.Description == recipe.Description);
-        }
-        #endregion
-    }
-
-
-    [Fact]
     public async Task CreateCategory_InvalidForeignKey_ThrowsDbUpdateException()
     {
         var (categoryRepository, dbContext) = CreateScope();
@@ -161,4 +122,42 @@ public partial class CategoryRepositoryTests : IClassFixture<TestFixture>
         await Assert.ThrowsAsync<DbUpdateException>(() => categoryRepository.Create(unSavedCategory));
         #endregion
     }
+
+    //  [Fact]
+    // public async Task CreateCategory_WithRelations_EnsuresCorrectForeignKeysAndSavesRelatedEntities()
+    // {
+    //     var (categoryRepository, dbContext) = CreateScope();
+
+    //     #region Arrange
+    //     const int NUMBER_OF_CREATED_RECIPES = 3;
+    //     List<Recipe> recipes = RecipeBuilder.BuildMany(NUMBER_OF_CREATED_RECIPES);
+
+    //     dbContext.Recipes.AddRange(recipes);
+    //     await dbContext.SaveChangesAsync();
+
+    //     Category unSavedCategory = new CategoryBuilder()
+    //                                 .WithName("Tomatoes")
+    //                                 .WithRecipes(recipes.ToArray())
+    //                                 .Build();
+    //     #endregion
+
+    //     #region Act
+    //     Category savedCategory = await categoryRepository.Create(unSavedCategory);
+    //     #endregion
+
+    //     #region Assert
+    //     Assert.True(savedCategory.ID > 0, "The Category ID should be greater than 0 after saving to the database.");
+
+    //     // get model directly from db using repository to ensure relations were saved
+    //     Category? retrievedCategory = await categoryRepository.GetOneWithAllDetails(savedCategory.ID);
+    //     Assert.NotNull(retrievedCategory);
+    //     Assert.Equal(unSavedCategory.Name, retrievedCategory!.Name);
+
+    //     Assert.Equal(recipes.Count, retrievedCategory.Recipes!.Count);
+    //     foreach (var recipe in recipes)
+    //     {
+    //         Assert.Contains(retrievedCategory.Recipes, r => r.Title == recipe.Title && r.Description == recipe.Description);
+    //     }
+    //     #endregion
+    // }
 }

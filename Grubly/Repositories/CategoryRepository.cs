@@ -2,6 +2,7 @@ using System;
 using Grubly.Data;
 using Grubly.Interfaces.Repositories;
 using Grubly.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grubly.Repositories;
 
@@ -14,8 +15,20 @@ public class CategoryRepository : ICategoryRepository
         _grublyContext = grublyContext;
     }
 
-    public Task<Category> Create(Category category)
+    public async Task<Category> Create(Category category)
     {
+        // if (category == null) {
+        //     throw new ArgumentNullException(nameof(category));
+        // }
+
+        // foreach (Recipe recipe in category.Recipes) {
+        //     _grublyContext.Entry(recipe).State = EntityState.Unchanged;
+        // }
+
+        // await _grublyContext.Categories.AddAsync(category);
+        // await _grublyContext.SaveChangesAsync();
+        // return category;
+
         throw new NotImplementedException();
     }
 

@@ -72,29 +72,34 @@ public class IngredientRepository : IIngredientRepository
 
     public async Task<Ingredient?> GetOneWithAllDetails(string name)
     {
-         return await _grublyContext.Ingredients
-            .Include(i => i.Recipes)
-            .FirstOrDefaultAsync(i => i.Name == name);
+        return await _grublyContext.Ingredients
+           .Include(i => i.Recipes)
+           .FirstOrDefaultAsync(i => i.Name == name);
     }
 
     public async Task<Ingredient> Update(Ingredient ingredient, int id)
-{
-    // Retrieve the existing ingredient
-    Ingredient? existingIngredient = await this.GetOneWithAllDetails(id);
-
-    if (existingIngredient == null)
     {
-        throw new KeyNotFoundException($"Ingredient with ID {id} not found.");
+        // Retrieve the existing ingredient
+        Ingredient? existingIngredient = await this.GetOneWithAllDetails(id);
+
+        if (existingIngredient == null)
+        {
+            throw new KeyNotFoundException($"Ingredient with ID {id} not found.");
+        }
+
+        // Update basic fields
+        existingIngredient.Name = ingredient.Name;
+        existingIngredient.Description = ingredient.Description;
+
+        foreach (var recipe in ingredient.Recipes)
+        {
+            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
+        }
+
+        // Save changes to the database
+        await _grublyContext.SaveChangesAsync();
+
+        return existingIngredient;
     }
-
-    // Update basic fields
-    existingIngredient.Name = ingredient.Name;
-    existingIngredient.Description = ingredient.Description;
-
-    // Save changes to the database
-    await _grublyContext.SaveChangesAsync();
-
-    return existingIngredient;
-}
 
 }
