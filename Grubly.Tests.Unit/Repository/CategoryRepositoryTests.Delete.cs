@@ -27,7 +27,7 @@ public partial class CategoryRepositoryTests
     }
 
     [Fact]
-    public async Task DeleteCategory_InvalidId_ThrowsNotFoundException()
+    public async Task DeleteCategory_InvalidId_ThrowsKeyNotFoundException()
     {
         var (categoryRepository, dbContext) = CreateScope();
         
@@ -39,7 +39,7 @@ public partial class CategoryRepositoryTests
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<Exception>(async () => await categoryRepository.Delete(savedCategory.ID));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await categoryRepository.Delete(savedCategory.ID));
         #endregion
     }
 

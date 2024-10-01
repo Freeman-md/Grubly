@@ -30,9 +30,18 @@ public class CategoryRepository : ICategoryRepository
         return category;
     }
 
-    public Task Delete(int id)
+    public async Task Delete(int id)
     {
-        throw new NotImplementedException();
+        Category? existingCategory = await this.GetOne(id);
+
+        if (existingCategory == null) {
+            throw new KeyNotFoundException(nameof(existingCategory));
+        }
+
+        existingCategory.Recipes.Clear();
+
+        _grublyContext.Remove(existingCategory);
+        await _grublyContext.SaveChangesAsync();
     }
 
     public async Task<IReadOnlyList<Category>> GetAll()
