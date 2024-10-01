@@ -17,19 +17,17 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category> Create(Category category)
     {
-        // if (category == null) {
-        //     throw new ArgumentNullException(nameof(category));
-        // }
+        if (category == null) {
+            throw new ArgumentNullException(nameof(category));
+        }
 
-        // foreach (Recipe recipe in category.Recipes) {
-        //     _grublyContext.Entry(recipe).State = EntityState.Unchanged;
-        // }
+        foreach (Recipe recipe in category.Recipes) {
+            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
+        }
 
-        // await _grublyContext.Categories.AddAsync(category);
-        // await _grublyContext.SaveChangesAsync();
-        // return category;
-
-        throw new NotImplementedException();
+        await _grublyContext.Categories.AddAsync(category);
+        await _grublyContext.SaveChangesAsync();
+        return category;
     }
 
     public Task Delete(int id)

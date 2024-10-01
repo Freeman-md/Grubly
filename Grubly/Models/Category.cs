@@ -1,5 +1,8 @@
-﻿namespace Grubly.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Grubly.Models
 {
+    [Index(nameof(Name), IsUnique = true)]
     public class Category
     {
         public int ID { get; set; }

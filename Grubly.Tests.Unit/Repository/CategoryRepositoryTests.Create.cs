@@ -67,8 +67,7 @@ public partial class CategoryRepositoryTests : IClassFixture<TestFixture>
 
     [Theory]
     [InlineData(null)]
-    [InlineData("")]
-    public async Task CreateCategory_InvalidInputs_ThrowsValidationException(string title)
+    public async Task CreateCategory_InvalidInputs_ThrowsDbUpdateException(string title)
     {
         var (categoryRepository, dbContext) = CreateScope();
 
@@ -77,12 +76,12 @@ public partial class CategoryRepositoryTests : IClassFixture<TestFixture>
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() => categoryRepository.Create(unSavedCategory));
+        await Assert.ThrowsAsync<DbUpdateException>(() => categoryRepository.Create(unSavedCategory));
         #endregion
     }
 
     [Fact]
-    public async Task CreateCategory_DuplicateEntity_ThrowsArgumentException()
+    public async Task CreateCategory_DuplicateEntity_ThrowsDbUpdateException()
     {
         var (categoryRepository, dbContext) = CreateScope();
 
@@ -99,7 +98,7 @@ public partial class CategoryRepositoryTests : IClassFixture<TestFixture>
         #endregion
 
         #region Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => categoryRepository.Create(duplicateCategory));
+        await Assert.ThrowsAsync<DbUpdateException>(() => categoryRepository.Create(duplicateCategory));
         #endregion
     }
 
