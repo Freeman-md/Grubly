@@ -28,6 +28,9 @@ public partial class CategoryRepositoryTests : IClassFixture<TestFixture>
         var categoryRepository = scopedServices.GetRequiredService<ICategoryRepository>();
         var dbContext = scopedServices.GetRequiredService<GrublyContext>();
 
+        dbContext.Database.EnsureDeleted();
+        dbContext.Database.EnsureCreated();
+
         return (categoryRepository, dbContext);
     }
 

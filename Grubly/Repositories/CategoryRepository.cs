@@ -35,29 +35,33 @@ public class CategoryRepository : ICategoryRepository
         throw new NotImplementedException();
     }
 
-    public Task<IReadOnlyList<Category>> GetAll()
+    public async Task<IReadOnlyList<Category>> GetAll()
     {
-        throw new NotImplementedException();
+        return await _grublyContext.Categories.ToListAsync();
     }
 
-    public Task<Category> GetOne(int id)
+    public async Task<Category?> GetOne(int id)
     {
-        throw new NotImplementedException();
+        return await _grublyContext.Categories.FindAsync(id);
     }
 
-    public Task<Category> GetOne(string name)
+    public async Task<Category?> GetOne(string name)
     {
-        throw new NotImplementedException();
+        return await _grublyContext.Categories.FirstOrDefaultAsync(category => category.Name == name);
     }
 
-    public Task<Category> GetOneWithAllDetails(int id)
+    public async Task<Category?> GetOneWithAllDetails(int id)
     {
-        throw new NotImplementedException();
+        return await _grublyContext.Categories
+                            .Include(category => category.Recipes)
+                            .FirstOrDefaultAsync(category => category.ID == id);
     }
 
-    public Task<Category> GetOneWithAllDetails(string name)
+    public async Task<Category?> GetOneWithAllDetails(string name)
     {
-        throw new NotImplementedException();
+        return await _grublyContext.Categories
+                            .Include(category => category.Recipes)
+                            .FirstOrDefaultAsync(category => category.Name == name);
     }
 
     public Task<Category> Update(Category category, int id)

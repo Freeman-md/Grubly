@@ -47,6 +47,78 @@ public partial class CategoryRepositoryTests
     }
 
     [Fact]
+    public async Task GetOneWithAllDetails_ByID_ReturnsCategoryWithRelatedRecipes()
+    {
+        var (categoryRepository, dbContext) = CreateScope();
+
+        #region Arrange
+        // Create related recipes
+        List<Recipe> recipes = RecipeBuilder.BuildMany(3);
+
+        // Add and save recipes
+        dbContext.Recipes.AddRange(recipes);
+        await dbContext.SaveChangesAsync();
+
+        Category savedCategory = await categoryRepository.Create(
+            new CategoryBuilder()
+            .WithName("Tomatoes")
+            .WithRecipes(recipes.ToArray())
+            .Build()
+        );
+        #endregion
+
+        #region Act
+        Category? retrievedCategory = await categoryRepository.GetOneWithAllDetails(savedCategory.ID);
+        #endregion
+
+        #region Assert
+        Assert.NotNull(retrievedCategory);
+        Assert.Equal(savedCategory.Name, retrievedCategory!.Name);
+        Assert.Equal(recipes.Count, retrievedCategory.Recipes.Count); // Ensure recipes are loaded
+        foreach (var recipe in recipes)
+        {
+            Assert.Contains(retrievedCategory.Recipes, r => r.Title == recipe.Title && r.Description == recipe.Description);
+        }
+        #endregion
+    }
+
+    [Fact]
+    public async Task GetOneWithAllDetails_ByName_ReturnsCategoryWithRelatedRecipes()
+    {
+        var (categoryRepository, dbContext) = CreateScope();
+
+        #region Arrange
+        // Create related recipes
+        List<Recipe> recipes = RecipeBuilder.BuildMany(3);
+
+        // Add and save recipes
+        dbContext.Recipes.AddRange(recipes);
+        await dbContext.SaveChangesAsync();
+
+        Category savedCategory = await categoryRepository.Create(
+            new CategoryBuilder()
+            .WithName("Garlic")
+            .WithRecipes(recipes.ToArray())
+            .Build()
+        );
+        #endregion
+
+        #region Act
+        Category? retrievedCategory = await categoryRepository.GetOneWithAllDetails(savedCategory.Name);
+        #endregion
+
+        #region Assert
+        Assert.NotNull(retrievedCategory);
+        Assert.Equal(savedCategory.Name, retrievedCategory!.Name);
+        Assert.Equal(recipes.Count, retrievedCategory.Recipes.Count); // Ensure recipes are loaded
+        foreach (var recipe in recipes)
+        {
+            Assert.Contains(retrievedCategory.Recipes, r => r.Title == recipe.Title && r.Description == recipe.Description);
+        }
+        #endregion
+    }
+
+    [Fact]
     public async Task GetCategoryById_InvalidId_ReturnsNull()
     {
         var (categoryRepository, dbContext) = CreateScope();
