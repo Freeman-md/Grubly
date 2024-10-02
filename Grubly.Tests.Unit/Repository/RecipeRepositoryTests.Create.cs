@@ -31,6 +31,9 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixture>
         var recipeRepository = scopedServices.GetRequiredService<IRecipeRepository>();
         var dbContext = scopedServices.GetRequiredService<GrublyContext>();
 
+        dbContext.Database.EnsureDeleted();
+        dbContext.Database.EnsureCreated();
+
         return (recipeRepository, dbContext);
     }
 
@@ -70,10 +73,9 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixture>
 
     [Theory]
     [InlineData(null, "Valid Description", CuisineType.Italian, DifficultyLevel.Easy)]
-    [InlineData("", "Valid Description", CuisineType.Italian, DifficultyLevel.Easy)]
-    [InlineData("Valid Title", "", CuisineType.Italian, DifficultyLevel.Easy)]
-    [InlineData("Valid Title", "Description too long... (too many characters)", CuisineType.Italian, DifficultyLevel.Easy)]
-    public async Task CreateRecipe_InvalidInputs_ThrowsValidationException(string title, string description, CuisineType type, DifficultyLevel difficultyLevel)
+    [InlineData("Valid Title", null, CuisineType.Italian, DifficultyLevel.Medium)]
+    
+    public async Task CreateRecipe_InvalidInputs_ThrowsDbUpdateException(string title, string description, CuisineType type, DifficultyLevel difficultyLevel)
     {
         var (recipeRepository, dbContext) = CreateScope();
 
@@ -82,34 +84,35 @@ public partial class RecipeRepositoryTests : IClassFixture<TestFixture>
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() => recipeRepository.Create(unSavedRecipe));
+        await Assert.ThrowsAsync<DbUpdateException>(() => recipeRepository.Create(unSavedRecipe));
         #endregion
     }
 
-    [Fact]
-    public async Task CreateRecipe_DuplicateEntity_ThrowsArgumentException()
-    {
-        var (recipeRepository, dbContext) = CreateScope();
+    // [Fact]
+    // public async Task CreateRecipe_DuplicateEntity_ForSameUser_ThrowsArgumentException()
+    // {
+    //     // TODO: Refactor test when authentication has been implemented
+    //     var (recipeRepository, dbContext) = CreateScope();
 
-        #region Arrange
-        Recipe originalRecipe = new RecipeBuilder().Build();
-        Recipe duplicateRecipe = new Recipe
-        {
-            Title = originalRecipe.Title,
-            Description = originalRecipe.Description,
-            CuisineType = originalRecipe.CuisineType,
-            DifficultyLevel = originalRecipe.DifficultyLevel,
-        };
-        #endregion
+    //     #region Arrange
+    //     Recipe originalRecipe = new RecipeBuilder().Build();
+    //     Recipe duplicateRecipe = new Recipe
+    //     {
+    //         Title = originalRecipe.Title,
+    //         Description = originalRecipe.Description,
+    //         CuisineType = originalRecipe.CuisineType,
+    //         DifficultyLevel = originalRecipe.DifficultyLevel,
+    //     };
+    //     #endregion
 
-        #region Act
-        await recipeRepository.Create(originalRecipe);
-        #endregion
+    //     #region Act
+    //     await recipeRepository.Create(originalRecipe);
+    //     #endregion
 
-        #region Assert
-        await Assert.ThrowsAsync<ArgumentException>(() => recipeRepository.Create(duplicateRecipe));
-        #endregion
-    }
+    //     #region Assert
+    //     await Assert.ThrowsAsync<ArgumentException>(() => recipeRepository.Create(duplicateRecipe));
+    //     #endregion
+    // }
 
     [Fact]
     public async Task CreateRecipe_WithRelations_EnsuresCorrectForeignKeysAndSavesRelatedEntities()

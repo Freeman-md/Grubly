@@ -1,4 +1,6 @@
-﻿namespace Grubly.Models
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace Grubly.Models
 {
     public enum CuisineType
     {
@@ -13,6 +15,8 @@
         Medium,
         Hard
     }
+
+    [Index(nameof(Title), IsUnique = true)]
     public class Recipe
     {
         public int ID { get; set; }
