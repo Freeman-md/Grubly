@@ -17,6 +17,8 @@ public partial class IngredientRepositoryTests
         #region Arrange
         Ingredient savedIngredient = await ingredientRepository.Create(new IngredientBuilder().Build());
 
+        dbContext.Entry(savedIngredient).State = EntityState.Detached;
+
         savedIngredient.Name = name;
         savedIngredient.Description = description;
         #endregion
@@ -44,6 +46,9 @@ public partial class IngredientRepositoryTests
         
         #region Arrange
         Ingredient savedIngredient = await ingredientRepository.Create(new IngredientBuilder().Build());
+
+        dbContext.Entry(savedIngredient).State = EntityState.Detached;
+
         savedIngredient.Name = name;
         savedIngredient.Description = description;
         #endregion
@@ -62,6 +67,8 @@ public partial class IngredientRepositoryTests
         #region Arrange
         const int RANDOM_ID = 82923;
         Ingredient savedIngredient = await ingredientRepository.Create(new IngredientBuilder().Build());
+
+        dbContext.Entry(savedIngredient).State = EntityState.Detached;
         #endregion
 
         #region Assert
@@ -88,6 +95,8 @@ public partial class IngredientRepositoryTests
             .Build();
 
         Ingredient savedIngredient = await ingredientRepository.Create(originalIngredient);
+
+        dbContext.Entry(savedIngredient).State = EntityState.Detached;
 
         savedIngredient.Name = UPDATED_NAME;
         #endregion

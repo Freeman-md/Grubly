@@ -17,11 +17,13 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category> Create(Category category)
     {
-        if (category == null) {
+        if (category == null)
+        {
             throw new ArgumentNullException(nameof(category));
         }
 
-        foreach (Recipe recipe in category.Recipes) {
+        foreach (Recipe recipe in category.Recipes)
+        {
             _grublyContext.Entry(recipe).State = EntityState.Unchanged;
         }
 
@@ -34,7 +36,8 @@ public class CategoryRepository : ICategoryRepository
     {
         Category? existingCategory = await this.GetOne(id);
 
-        if (existingCategory == null) {
+        if (existingCategory == null)
+        {
             throw new KeyNotFoundException($"Category with ID {id} not found.");
         }
 
@@ -75,20 +78,27 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category> Update(Category category, int id)
     {
-         Category? existingCategory = await this.GetOne(id);
+        Category? existingCategory = await this.GetOne(id);
 
-        if (existingCategory == null) {
+        if (existingCategory == null)
+        {
             throw new KeyNotFoundException($"Category with ID {id} not found.");
+        }
+
+        if (category == null)
+        {
+            throw new ArgumentNullException(nameof(category));
         }
 
         existingCategory.Name = category.Name;
 
-        foreach (Recipe recipe in category.Recipes) {
+        foreach (Recipe recipe in category.Recipes)
+        {
             _grublyContext.Entry(recipe).State = EntityState.Unchanged;
         }
 
         await _grublyContext.SaveChangesAsync();
-        
+
         return existingCategory;
     }
 }

@@ -87,6 +87,11 @@ public class IngredientRepository : IIngredientRepository
             throw new KeyNotFoundException($"Ingredient with ID {id} not found.");
         }
 
+        if (ingredient == null)
+        {
+            throw new ArgumentNullException(nameof(ingredient));
+        }
+
         // Update basic fields
         existingIngredient.Name = ingredient.Name;
         existingIngredient.Description = ingredient.Description;

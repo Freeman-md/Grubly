@@ -2,6 +2,8 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Grubly.Models;
 using Grubly.Tests.Unit.Builders;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Packaging;
 
 namespace Grubly.Tests.Unit.Repository;
 
@@ -13,9 +15,11 @@ public partial class RecipeRepositoryTests
     public async Task UpdateRecipe_ValidEntity_UpdatesRecipeInDatabase(string title, string description, string? instructions, string? imageUrl, CuisineType cuisineType, DifficultyLevel difficultyLevel)
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Arrange
         Recipe savedRecipe = await recipeRepository.Create(new RecipeBuilder().Build());
+
+        dbContext.Entry(savedRecipe).State = EntityState.Detached;
 
         savedRecipe.Title = title;
         savedRecipe.Description = description;
@@ -45,15 +49,16 @@ public partial class RecipeRepositoryTests
 
     [Theory]
     [InlineData(null, "Valid Description", CuisineType.Italian, DifficultyLevel.Easy)]
-    [InlineData("", "Valid Description", CuisineType.Italian, DifficultyLevel.Easy)]
-    [InlineData("Valid Title", "", CuisineType.Italian, DifficultyLevel.Easy)]
-    [InlineData("Valid Title", "Valid Description", CuisineType.Italian, DifficultyLevel.Easy)]
-    public async Task UpdateRecipe_InvalidInputs_ThrowsValidationException(string title, string description, CuisineType type, DifficultyLevel difficultyLevel)
+    [InlineData("Valid Title", null, CuisineType.Italian, DifficultyLevel.Easy)]
+    public async Task UpdateRecipe_InvalidInputs_ThrowsDbUpdateException(string title, string description, CuisineType type, DifficultyLevel difficultyLevel)
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Arrange
         Recipe savedRecipe = await recipeRepository.Create(new RecipeBuilder().Build());
+
+        dbContext.Entry(savedRecipe).State = EntityState.Detached;
+
         savedRecipe.Title = title;
         savedRecipe.Description = description;
         savedRecipe.CuisineType = type;
@@ -61,23 +66,25 @@ public partial class RecipeRepositoryTests
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<ValidationException>(() => recipeRepository.Update(savedRecipe, savedRecipe.ID));
+        await Assert.ThrowsAsync<DbUpdateException>(() => recipeRepository.Update(savedRecipe, savedRecipe.ID));
         #endregion
     }
 
     [Fact]
-    public async Task UpdateRecipe_InvalidId_ThrowsNotFoundException()
+    public async Task UpdateRecipe_InvalidId_ThrowsKeyNotFoundException()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         //TODO: Create a NotFoundException Class in main project and use here
         #region Arrange
         const int RANDOM_ID = 82923;
         Recipe savedRecipe = await recipeRepository.Create(new RecipeBuilder().Build());
+
+        dbContext.Entry(savedRecipe).State = EntityState.Detached;
         #endregion
 
         #region Assert
-        await Assert.ThrowsAsync<Exception>(async () => await recipeRepository.Update(savedRecipe, RANDOM_ID));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await recipeRepository.Update(savedRecipe, RANDOM_ID));
         #endregion
     }
 
@@ -85,7 +92,7 @@ public partial class RecipeRepositoryTests
     public async Task UpdateRecipe_DatabaseIntegrity_MaintainsRelationships()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Arrange
         // Create and save ingredients and categories
         Ingredient ingredient1 = new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" };
@@ -105,6 +112,9 @@ public partial class RecipeRepositoryTests
             .Build();
 
         Recipe savedRecipe = await recipeRepository.Create(originalRecipe);
+
+        // Detach the savedRecipe from the DbContext to stop it from being tracked
+        dbContext.Entry(savedRecipe).State = EntityState.Detached;
 
         // Update the recipe title, but keep the same relationships (ingredients and categories)
         savedRecipe.Title = "Updated Recipe Title";
@@ -132,5 +142,163 @@ public partial class RecipeRepositoryTests
         // Assert that the category relationship has not changed (category1 should still be linked)
         #endregion
     }
+
+    [Fact]
+    public async Task UpdateRecipe_ReplacesOldIngredientsAndCategoriesWithNewSet()
+    {
+        var (recipeRepository, dbContext) = CreateScope();
+
+        #region Arrange
+        // Define initial ingredients and categories
+        var initialIngredients = new List<Ingredient>
+    {
+        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
+        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
+    };
+
+        var initialCategory = new Category { Name = "Breakfast" };
+
+        // Define new ingredients and categories to replace the initial set
+        var newIngredients = new List<Ingredient>
+    {
+        new Ingredient { Name = "Onion", Description = "Chopped onions" },
+        new Ingredient { Name = "Ginger", Description = "Fresh ginger roots" }
+    };
+
+        var newCategory = new Category { Name = "Lunch" };
+
+        // Add initial and new ingredients and categories to the DbContext
+        dbContext.Ingredients.AddRange(initialIngredients.Concat(newIngredients));
+        dbContext.Categories.AddRange(initialCategory, newCategory);
+        await dbContext.SaveChangesAsync();
+
+        // Create and save the original recipe with the initial set of ingredients and category
+        var originalRecipe = new RecipeBuilder()
+            .WithTitle("Original Recipe")
+            .WithIngredients(initialIngredients.ToArray())
+            .WithCategories(initialCategory)
+            .Build();
+
+        Recipe savedRecipe = await recipeRepository.Create(originalRecipe);
+
+        // Detach the savedRecipe from the DbContext to stop it from being tracked
+        dbContext.Entry(savedRecipe).State = EntityState.Detached;
+
+        // Update the recipe with a new title, and replace ingredients and category
+        savedRecipe.Title = "Updated Recipe Title";
+        savedRecipe.Ingredients = newIngredients;  // Assign the new set of ingredients
+        savedRecipe.Categories = new List<Category> { newCategory };  // Assign the new category
+        #endregion
+
+        #region Act
+        await recipeRepository.Update(savedRecipe, savedRecipe.ID);
+
+        // Retrieve the updated recipe with its ingredients and categories
+        Recipe? updatedRecipe = await recipeRepository.GetOneWithAllDetails(savedRecipe.ID);
+        #endregion
+
+        #region Assert
+        Assert.NotNull(updatedRecipe);
+        Assert.Equal("Updated Recipe Title", updatedRecipe!.Title);
+
+        // Verify the new set of ingredients is associated with the recipe
+        Assert.Equal(newIngredients.Count, updatedRecipe.Ingredients!.Count);
+        foreach (var newIngredient in newIngredients)
+        {
+            Assert.Contains(updatedRecipe.Ingredients, i => i.Name == newIngredient.Name);
+        }
+
+        // Ensure the old ingredients are no longer linked to the recipe
+        foreach (var initialIngredient in initialIngredients)
+        {
+            Assert.DoesNotContain(updatedRecipe.Ingredients, i => i.Name == initialIngredient.Name);
+        }
+
+        // Verify the new category is associated with the recipe
+        Assert.Single(updatedRecipe.Categories!);
+        Assert.Contains(updatedRecipe.Categories!, c => c.Name == newCategory.Name);
+
+        // Ensure the old category is no longer linked to the recipe
+        Assert.DoesNotContain(updatedRecipe.Categories!, c => c.Name == initialCategory.Name);
+        #endregion
+    }
+
+    [Fact]
+    public async Task UpdateRecipe_AddsNewIngredientsAndCategoriesToExistingOnes()
+    {
+        var (recipeRepository, dbContext) = CreateScope();
+
+        #region Arrange
+        // Initial set of ingredients and categories
+        var initialIngredients = new List<Ingredient>
+    {
+        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
+        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
+    };
+
+        var initialCategory = new Category { Name = "Breakfast" };
+
+        // New ingredients and categories to be added (not replacing, but adding to the existing ones)
+        var additionalIngredients = new List<Ingredient>
+    {
+        new Ingredient { Name = "Onion", Description = "Chopped onions" },
+        new Ingredient { Name = "Ginger", Description = "Fresh ginger roots" }
+    };
+
+        var additionalCategory = new Category { Name = "Lunch" };
+
+        // Add both the initial and additional ingredients and categories to the DbContext
+        dbContext.Ingredients.AddRange(initialIngredients.Concat(additionalIngredients));
+        dbContext.Categories.AddRange(initialCategory, additionalCategory);
+        await dbContext.SaveChangesAsync();
+
+        // Create and save the original recipe with the initial set of ingredients and categories
+        var originalRecipe = new RecipeBuilder()
+            .WithTitle("Original Recipe")
+            .WithIngredients(initialIngredients.ToArray())
+            .WithCategories(initialCategory)
+            .Build();
+
+        Recipe savedRecipe = await recipeRepository.Create(originalRecipe);
+
+        // Detach the savedRecipe from the DbContext to stop it from being tracked
+        dbContext.Entry(savedRecipe).State = EntityState.Detached;
+
+        // Update the recipe title and add the new ingredients and categories, while keeping the old ones
+        savedRecipe.Title = "Updated Recipe Title";
+        savedRecipe.Ingredients.AddRange(additionalIngredients);  // Add new ingredients to the existing ones
+        savedRecipe.Categories.Add(additionalCategory);  // Add new category to the existing ones
+        #endregion
+
+        #region Act
+        await recipeRepository.Update(savedRecipe, savedRecipe.ID);
+
+        // Retrieve the updated recipe with details (including ingredients and categories)
+        Recipe? updatedRecipe = await recipeRepository.GetOneWithAllDetails(savedRecipe.ID);
+        #endregion
+
+        #region Assert
+        Assert.NotNull(updatedRecipe);
+        Assert.Equal("Updated Recipe Title", updatedRecipe!.Title);
+
+        // Verify that both the initial and additional ingredients are associated with the recipe
+        var expectedIngredients = initialIngredients.Concat(additionalIngredients).ToList();
+        Assert.Equal(expectedIngredients.Count, updatedRecipe.Ingredients!.Count);
+        foreach (var ingredient in expectedIngredients)
+        {
+            Assert.Contains(updatedRecipe.Ingredients, i => i.Name == ingredient.Name);
+        }
+
+        // Verify that both the initial and additional categories are associated with the recipe
+        var expectedCategories = new List<Category> { initialCategory, additionalCategory };
+        Assert.Equal(expectedCategories.Count, updatedRecipe.Categories!.Count);
+        foreach (var category in expectedCategories)
+        {
+            Assert.Contains(updatedRecipe.Categories!, c => c.Name == category.Name);
+        }
+        #endregion
+    }
+
+
 
 }

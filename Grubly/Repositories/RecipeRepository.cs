@@ -22,26 +22,37 @@ public class RecipeRepository : IRecipeRepository
             throw new ArgumentNullException(nameof(recipe));
         }
 
-        PersistCategoriesAndIngredients(recipe);
+        var newRecipe = new Recipe
+        {
+            Title = recipe.Title,
+            Description = recipe.Description,
+            Instructions = recipe.Instructions,
+            CuisineType = recipe.CuisineType,
+            DifficultyLevel = recipe.DifficultyLevel,
+            ImageUrl = recipe.ImageUrl
+        };
 
-        await _grublycontext.Recipes.AddAsync(recipe);
+        UpdateCategoriesAndIngredients(newRecipe, recipe);
+
+        await _grublycontext.Recipes.AddAsync(newRecipe);
         await _grublycontext.SaveChangesAsync();
 
-        return recipe;
+        return newRecipe;
     }
 
     public async Task Delete(int id)
     {
-        Recipe? exisitingRecipe = await GetOne(id);
+        Recipe? existingRecipe = await GetOne(id);
 
-        if (exisitingRecipe == null) {
+        if (existingRecipe == null)
+        {
             throw new KeyNotFoundException($"Recipe with ID: {id} not found.");
         }
 
-        exisitingRecipe.Categories.Clear();
-        exisitingRecipe.Ingredients.Clear();
+        existingRecipe.Categories.Clear();
+        existingRecipe.Ingredients.Clear();
 
-        _grublycontext.Recipes.Remove(exisitingRecipe);
+        _grublycontext.Recipes.Remove(existingRecipe);
         await _grublycontext.SaveChangesAsync();
     }
 
@@ -76,21 +87,53 @@ public class RecipeRepository : IRecipeRepository
                     .FirstOrDefaultAsync(recipe => recipe.Title == title);
     }
 
-    public Task<Recipe> Update(Recipe recipe, int id)
+    public async Task<Recipe> Update(Recipe recipe, int id)
     {
-        throw new NotImplementedException();
-    }
+        Recipe? existingRecipe = await GetOneWithAllDetails(id);
 
-    private void PersistCategoriesAndIngredients(Recipe recipe)
-    {
-        foreach (Category category in recipe.Categories)
+        if (existingRecipe == null)
         {
-            _grublycontext.Entry(category).State = EntityState.Unchanged;
+            throw new KeyNotFoundException($"Recipe with ID: {id} not found.");
         }
 
-        foreach (Ingredient ingredient in recipe.Ingredients)
+        if (recipe == null)
         {
+            throw new ArgumentNullException(nameof(recipe));
+        }
+
+        // Update the fields
+        existingRecipe.Title = recipe.Title;
+        existingRecipe.Description = recipe.Description;
+        existingRecipe.Instructions = recipe.Instructions;
+        existingRecipe.CuisineType = recipe.CuisineType;
+        existingRecipe.DifficultyLevel = recipe.DifficultyLevel;
+        existingRecipe.ImageUrl = recipe.ImageUrl;
+
+        // Handle relationships for Categories and Ingredients
+        UpdateCategoriesAndIngredients(existingRecipe, recipe);
+
+        // Save changes
+        await _grublycontext.SaveChangesAsync();
+
+        return existingRecipe;
+    }
+
+    private void UpdateCategoriesAndIngredients(Recipe targetRecipe, Recipe sourceRecipe)
+    {
+        targetRecipe.Ingredients.Clear(); // Clear existing ingredients
+        foreach (var ingredient in sourceRecipe.Ingredients)
+        {
+            // Attach the ingredient as unchanged to avoid creating duplicates if it already exists
             _grublycontext.Entry(ingredient).State = EntityState.Unchanged;
+            targetRecipe.Ingredients.Add(ingredient);
+        }
+
+        targetRecipe.Categories.Clear(); // Clear existing categories
+        foreach (var category in sourceRecipe.Categories)
+        {
+            // Attach the category as unchanged to avoid creating duplicates if it already exists
+            _grublycontext.Entry(category).State = EntityState.Unchanged;
+            targetRecipe.Categories.Add(category);
         }
     }
 }

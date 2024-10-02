@@ -17,6 +17,8 @@ public partial class CategoryRepositoryTests
         #region Arrange
         Category savedCategory = await categoryRepository.Create(new CategoryBuilder().Build());
 
+        dbContext.Entry(savedCategory).State = EntityState.Detached;
+
         savedCategory.Name = name;
         #endregion
 
@@ -42,6 +44,9 @@ public partial class CategoryRepositoryTests
         
         #region Arrange
         Category savedCategory = await categoryRepository.Create(new CategoryBuilder().Build());
+
+        dbContext.Entry(savedCategory).State = EntityState.Detached;
+
         savedCategory.Name = name;
         #endregion
 
@@ -58,6 +63,8 @@ public partial class CategoryRepositoryTests
         #region Arrange
         const int RANDOM_ID = 82923;
         Category savedCategory = await categoryRepository.Create(new CategoryBuilder().Build());
+
+        dbContext.Entry(savedCategory).State = EntityState.Detached;
         #endregion
 
         #region Assert
@@ -84,6 +91,8 @@ public partial class CategoryRepositoryTests
             .Build();
 
         Category savedCategory = await categoryRepository.Create(originalCategory);
+
+        dbContext.Entry(savedCategory).State = EntityState.Detached;
 
         savedCategory.Name = UPDATED_NAME;
         #endregion
