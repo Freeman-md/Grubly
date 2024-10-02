@@ -38,7 +38,7 @@ public class IngredientBuilder
         for (int i = 0; i < count; i++)
         {
             ingredients.Add(new IngredientBuilder()
-                .WithName($"Ingredient {i + 1}")
+                .WithName(Guid.NewGuid().ToString())
                 .WithRecipes(new RecipeBuilder().WithTitle("Tomato Omelette").Build(), new RecipeBuilder().WithTitle("Egg Yolk").Build())
                 .Build());
         }

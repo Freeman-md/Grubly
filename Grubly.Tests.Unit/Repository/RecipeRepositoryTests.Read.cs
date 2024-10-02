@@ -10,7 +10,7 @@ public partial class RecipeRepositoryTests
     public async Task GetRecipeById_ValidId_ReturnsCorrectRecipe()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Arrange
         Recipe unSavedRecipe = new RecipeBuilder().Build();
         Recipe savedRecipe = await recipeRepository.Create(unSavedRecipe);
@@ -31,7 +31,7 @@ public partial class RecipeRepositoryTests
     public async Task GetRecipeByTitle_ValidTitle_ReturnsCorrectRecipe()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Arrange
         Recipe unSavedRecipe = new RecipeBuilder().Build();
         Recipe savedRecipe = await recipeRepository.Create(unSavedRecipe);
@@ -49,10 +49,128 @@ public partial class RecipeRepositoryTests
     }
 
     [Fact]
+    public async Task GetOneWithAllDetails_ByID_ReturnsRecipeWithRelatedIngredientsAndCategories()
+    {
+        var (recipeRepository, dbContext) = CreateScope();
+
+        #region Arrange
+        // Create related ingredients and categories
+        List<Ingredient> ingredients = new List<Ingredient>
+    {
+        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
+        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
+    };
+
+        List<Category> categories = new List<Category>
+    {
+        new Category { Name = "Breakfast" },
+        new Category { Name = "Lunch" }
+    };
+
+        // Add and save ingredients and categories
+        dbContext.Ingredients.AddRange(ingredients);
+        dbContext.Categories.AddRange(categories);
+        await dbContext.SaveChangesAsync();
+
+        // Create and save a recipe with ingredients and categories
+        Recipe savedRecipe = await recipeRepository.Create(
+            new RecipeBuilder()
+            .WithTitle("Delicious Pasta")
+            .WithIngredients(ingredients.ToArray())
+            .WithCategories(categories.ToArray())
+            .Build()
+        );
+        #endregion
+
+        #region Act
+        Recipe? retrievedRecipe = await recipeRepository.GetOneWithAllDetails(savedRecipe.ID);
+        #endregion
+
+        #region Assert
+        Assert.NotNull(retrievedRecipe);
+        Assert.Equal(savedRecipe.Title, retrievedRecipe!.Title);
+
+        // Ensure ingredients are loaded
+        Assert.Equal(ingredients.Count, retrievedRecipe.Ingredients.Count);
+        foreach (var ingredient in ingredients)
+        {
+            Assert.Contains(retrievedRecipe.Ingredients, i => i.Name == ingredient.Name && i.Description == ingredient.Description);
+        }
+
+        // Ensure categories are loaded
+        Assert.Equal(categories.Count, retrievedRecipe.Categories.Count);
+        foreach (var category in categories)
+        {
+            Assert.Contains(retrievedRecipe.Categories, c => c.Name == category.Name);
+        }
+        #endregion
+    }
+
+    [Fact]
+    public async Task GetOneWithAllDetails_ByTitle_ReturnsRecipeWithRelatedIngredientsAndCategories()
+    {
+        var (recipeRepository, dbContext) = CreateScope();
+
+        #region Arrange
+        // Create related ingredients and categories
+        List<Ingredient> ingredients = new List<Ingredient>
+    {
+        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
+        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
+    };
+
+        List<Category> categories = new List<Category>
+    {
+        new Category { Name = "Dinner" },
+        new Category { Name = "Appetizer" }
+    };
+
+        // Add and save ingredients and categories
+        dbContext.Ingredients.AddRange(ingredients);
+        dbContext.Categories.AddRange(categories);
+        await dbContext.SaveChangesAsync();
+
+        // Create and save a recipe with ingredients and categories
+        Recipe savedRecipe = await recipeRepository.Create(
+            new RecipeBuilder()
+            .WithTitle("Hearty Soup")
+            .WithIngredients(ingredients.ToArray())
+            .WithCategories(categories.ToArray())
+            .Build()
+        );
+        #endregion
+
+        #region Act
+        Recipe? retrievedRecipe = await recipeRepository.GetOneWithAllDetails(savedRecipe.Title);
+        #endregion
+
+        #region Assert
+        Assert.NotNull(retrievedRecipe);
+        Assert.Equal(savedRecipe.Title, retrievedRecipe!.Title);
+
+        // Ensure ingredients are loaded
+        Assert.Equal(ingredients.Count, retrievedRecipe.Ingredients.Count);
+        foreach (var ingredient in ingredients)
+        {
+            Assert.Contains(retrievedRecipe.Ingredients, i => i.Name == ingredient.Name && i.Description == ingredient.Description);
+        }
+
+        // Ensure categories are loaded
+        Assert.Equal(categories.Count, retrievedRecipe.Categories.Count);
+        foreach (var category in categories)
+        {
+            Assert.Contains(retrievedRecipe.Categories, c => c.Name == category.Name);
+        }
+        #endregion
+    }
+
+
+
+    [Fact]
     public async Task GetRecipeById_InvalidId_ReturnsNull()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Arrange
         Recipe recipe = new RecipeBuilder().Build();
         recipe.ID = 893; // random ID
@@ -72,7 +190,7 @@ public partial class RecipeRepositoryTests
     public async Task GetRecipeByTitle_InvalidTitle_ReturnsNull()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Arrange
         Recipe recipe = new RecipeBuilder().Build();
         #endregion
@@ -91,7 +209,7 @@ public partial class RecipeRepositoryTests
     public async Task GetAllRecipes_ReturnsAllRecipes()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Arrange
         Recipe[] unSavedRecipes = {
                 new RecipeBuilder().WithTitle($"Tomato Omelette").Build(),
@@ -120,7 +238,7 @@ public partial class RecipeRepositoryTests
     public async Task GetAllRecipes_EmptyDatabase_ReturnsEmptyList()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
+
         #region Act
         IReadOnlyList<Recipe> noRecipes = await recipeRepository.GetAll();
         #endregion

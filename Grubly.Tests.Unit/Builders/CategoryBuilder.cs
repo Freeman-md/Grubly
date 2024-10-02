@@ -38,7 +38,7 @@ public class CategoryBuilder
         for (int i = 0; i < count; i++)
         {
             categories.Add(new CategoryBuilder()
-                .WithName($"Category {i + 1}")
+                .WithName(Guid.NewGuid().ToString())
                 .WithRecipes(new RecipeBuilder().WithTitle("Tomato Omelette").Build(), new RecipeBuilder().WithTitle("Egg Yolk").Build())
                 .Build());
         }
