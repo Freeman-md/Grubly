@@ -39,7 +39,7 @@ public class CategoryBuilder
         {
             categories.Add(new CategoryBuilder()
                 .WithName(Guid.NewGuid().ToString())
-                .WithRecipes(new RecipeBuilder().WithTitle("Tomato Omelette").Build(), new RecipeBuilder().WithTitle("Egg Yolk").Build())
+                .WithRecipes(new RecipeBuilder().WithTitle(Guid.NewGuid().ToString()).Build(), new RecipeBuilder().WithTitle(Guid.NewGuid().ToString()).Build())
                 .Build());
         }
         return categories;

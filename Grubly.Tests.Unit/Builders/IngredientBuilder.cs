@@ -39,7 +39,7 @@ public class IngredientBuilder
         {
             ingredients.Add(new IngredientBuilder()
                 .WithName(Guid.NewGuid().ToString())
-                .WithRecipes(new RecipeBuilder().WithTitle("Tomato Omelette").Build(), new RecipeBuilder().WithTitle("Egg Yolk").Build())
+                .WithRecipes(new RecipeBuilder().WithTitle(Guid.NewGuid().ToString()).Build(), new RecipeBuilder().WithTitle(Guid.NewGuid().ToString()).Build())
                 .Build());
         }
         return ingredients;

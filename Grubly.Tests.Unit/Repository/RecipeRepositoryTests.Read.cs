@@ -55,17 +55,9 @@ public partial class RecipeRepositoryTests
 
         #region Arrange
         // Create related ingredients and categories
-        List<Ingredient> ingredients = new List<Ingredient>
-    {
-        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
-        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
-    };
+        List<Ingredient> ingredients = IngredientBuilder.BuildMany(2);
 
-        List<Category> categories = new List<Category>
-    {
-        new Category { Name = "Breakfast" },
-        new Category { Name = "Lunch" }
-    };
+        List<Category> categories = CategoryBuilder.BuildMany(2);
 
         // Add and save ingredients and categories
         dbContext.Ingredients.AddRange(ingredients);
@@ -113,17 +105,9 @@ public partial class RecipeRepositoryTests
 
         #region Arrange
         // Create related ingredients and categories
-        List<Ingredient> ingredients = new List<Ingredient>
-    {
-        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
-        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
-    };
+        List<Ingredient> ingredients = IngredientBuilder.BuildMany(2);
 
-        List<Category> categories = new List<Category>
-    {
-        new Category { Name = "Dinner" },
-        new Category { Name = "Appetizer" }
-    };
+        List<Category> categories = CategoryBuilder.BuildMany(2);
 
         // Add and save ingredients and categories
         dbContext.Ingredients.AddRange(ingredients);

@@ -150,20 +150,12 @@ public partial class RecipeRepositoryTests
 
         #region Arrange
         // Define initial ingredients and categories
-        var initialIngredients = new List<Ingredient>
-    {
-        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
-        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
-    };
+        var initialIngredients = IngredientBuilder.BuildMany(2);
 
         var initialCategory = new Category { Name = "Breakfast" };
 
         // Define new ingredients and categories to replace the initial set
-        var newIngredients = new List<Ingredient>
-    {
-        new Ingredient { Name = "Onion", Description = "Chopped onions" },
-        new Ingredient { Name = "Ginger", Description = "Fresh ginger roots" }
-    };
+        var newIngredients = IngredientBuilder.BuildMany(2);
 
         var newCategory = new Category { Name = "Lunch" };
 
@@ -230,20 +222,12 @@ public partial class RecipeRepositoryTests
 
         #region Arrange
         // Initial set of ingredients and categories
-        var initialIngredients = new List<Ingredient>
-    {
-        new Ingredient { Name = "Tomato", Description = "Fresh red tomatoes" },
-        new Ingredient { Name = "Garlic", Description = "Fresh garlic cloves" }
-    };
+        var initialIngredients = IngredientBuilder.BuildMany(2);
 
         var initialCategory = new Category { Name = "Breakfast" };
 
         // New ingredients and categories to be added (not replacing, but adding to the existing ones)
-        var additionalIngredients = new List<Ingredient>
-    {
-        new Ingredient { Name = "Onion", Description = "Chopped onions" },
-        new Ingredient { Name = "Ginger", Description = "Fresh ginger roots" }
-    };
+        var additionalIngredients = IngredientBuilder.BuildMany(2);
 
         var additionalCategory = new Category { Name = "Lunch" };
 
