@@ -36,7 +36,7 @@ public class IngredientRepository : IIngredientRepository
 
     public async Task Delete(int id)
     {
-        Ingredient? ingredient = await this.GetOne(id);
+        Ingredient? ingredient = await GetOne(id);
 
         if (ingredient == null)
         {

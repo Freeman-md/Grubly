@@ -22,19 +22,20 @@ public class CategoryRepository : ICategoryRepository
             throw new ArgumentNullException(nameof(category));
         }
 
-        foreach (Recipe recipe in category.Recipes)
-        {
-            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
-        }
+        var newCategory = new Category {
+            Name = category.Name,
+        };
 
-        await _grublyContext.Categories.AddAsync(category);
+        UpdateRecipes(newCategory, category);
+
+        await _grublyContext.Categories.AddAsync(newCategory);
         await _grublyContext.SaveChangesAsync();
-        return category;
+        return newCategory;
     }
 
     public async Task Delete(int id)
     {
-        Category? existingCategory = await this.GetOne(id);
+        Category? existingCategory = await GetOne(id);
 
         if (existingCategory == null)
         {
@@ -78,7 +79,7 @@ public class CategoryRepository : ICategoryRepository
 
     public async Task<Category> Update(Category category, int id)
     {
-        Category? existingCategory = await this.GetOne(id);
+        Category? existingCategory = await GetOneWithAllDetails(id);
 
         if (existingCategory == null)
         {
@@ -92,13 +93,21 @@ public class CategoryRepository : ICategoryRepository
 
         existingCategory.Name = category.Name;
 
-        foreach (Recipe recipe in category.Recipes)
-        {
-            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
-        }
+        UpdateRecipes(existingCategory, category);
 
         await _grublyContext.SaveChangesAsync();
 
         return existingCategory;
+    }
+
+    private void UpdateRecipes(Category targetCategory, Category sourceCategory)
+    {
+        targetCategory.Recipes.Clear(); // Clear existing recipes
+        foreach (var recipe in sourceCategory.Recipes)
+        {
+            // Attach the recipe as unchanged to avoid creating duplicates if it already exists
+            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
+            targetCategory.Recipes.Add(recipe);
+        }
     }
 }
