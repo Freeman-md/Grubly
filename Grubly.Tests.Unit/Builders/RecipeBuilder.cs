@@ -53,7 +53,7 @@ public class RecipeBuilder
         for (int i = 0; i < count; i++)
         {
             recipes.Add(new RecipeBuilder()
-                .WithTitle($"Recipe {i + 1}")
+                .WithTitle(Guid.NewGuid().ToString())
                 .WithIngredients(new Ingredient { Name = Guid.NewGuid().ToString() }, new Ingredient { Name = Guid.NewGuid().ToString() })
                 .WithCategories(new Category { Name = Guid.NewGuid().ToString() })
                 .Build());

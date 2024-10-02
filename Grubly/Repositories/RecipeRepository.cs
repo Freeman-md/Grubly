@@ -8,11 +8,11 @@ namespace Grubly.Repositories;
 
 public class RecipeRepository : IRecipeRepository
 {
-    private readonly GrublyContext _grublycontext;
+    private readonly GrublyContext _grublyContext;
 
     public RecipeRepository(GrublyContext grublyContext)
     {
-        _grublycontext = grublyContext;
+        _grublyContext = grublyContext;
     }
 
     public async Task<Recipe> Create(Recipe recipe)
@@ -34,8 +34,8 @@ public class RecipeRepository : IRecipeRepository
 
         UpdateCategoriesAndIngredients(newRecipe, recipe);
 
-        await _grublycontext.Recipes.AddAsync(newRecipe);
-        await _grublycontext.SaveChangesAsync();
+        await _grublyContext.Recipes.AddAsync(newRecipe);
+        await _grublyContext.SaveChangesAsync();
 
         return newRecipe;
     }
@@ -52,28 +52,28 @@ public class RecipeRepository : IRecipeRepository
         existingRecipe.Categories.Clear();
         existingRecipe.Ingredients.Clear();
 
-        _grublycontext.Recipes.Remove(existingRecipe);
-        await _grublycontext.SaveChangesAsync();
+        _grublyContext.Recipes.Remove(existingRecipe);
+        await _grublyContext.SaveChangesAsync();
     }
 
     public async Task<IReadOnlyList<Recipe>> GetAll()
     {
-        return await _grublycontext.Recipes.ToListAsync();
+        return await _grublyContext.Recipes.ToListAsync();
     }
 
     public async Task<Recipe?> GetOne(int id)
     {
-        return await _grublycontext.Recipes.FindAsync(id);
+        return await _grublyContext.Recipes.FindAsync(id);
     }
 
     public async Task<Recipe?> GetOne(string title)
     {
-        return await _grublycontext.Recipes.FirstOrDefaultAsync(recipe => recipe.Title == title);
+        return await _grublyContext.Recipes.FirstOrDefaultAsync(recipe => recipe.Title == title);
     }
 
     public async Task<Recipe?> GetOneWithAllDetails(int id)
     {
-        return await _grublycontext.Recipes
+        return await _grublyContext.Recipes
                     .Include(recipe => recipe.Categories)
                     .Include(recipe => recipe.Ingredients)
                     .FirstOrDefaultAsync(recipe => recipe.ID == id);
@@ -81,7 +81,7 @@ public class RecipeRepository : IRecipeRepository
 
     public async Task<Recipe?> GetOneWithAllDetails(string title)
     {
-        return await _grublycontext.Recipes
+        return await _grublyContext.Recipes
                     .Include(recipe => recipe.Categories)
                     .Include(recipe => recipe.Ingredients)
                     .FirstOrDefaultAsync(recipe => recipe.Title == title);
@@ -113,7 +113,7 @@ public class RecipeRepository : IRecipeRepository
         UpdateCategoriesAndIngredients(existingRecipe, recipe);
 
         // Save changes
-        await _grublycontext.SaveChangesAsync();
+        await _grublyContext.SaveChangesAsync();
 
         return existingRecipe;
     }
@@ -124,7 +124,7 @@ public class RecipeRepository : IRecipeRepository
         foreach (var ingredient in sourceRecipe.Ingredients)
         {
             // Attach the ingredient as unchanged to avoid creating duplicates if it already exists
-            _grublycontext.Entry(ingredient).State = EntityState.Unchanged;
+            _grublyContext.Entry(ingredient).State = EntityState.Unchanged;
             targetRecipe.Ingredients.Add(ingredient);
         }
 
@@ -132,7 +132,7 @@ public class RecipeRepository : IRecipeRepository
         foreach (var category in sourceRecipe.Categories)
         {
             // Attach the category as unchanged to avoid creating duplicates if it already exists
-            _grublycontext.Entry(category).State = EntityState.Unchanged;
+            _grublyContext.Entry(category).State = EntityState.Unchanged;
             targetRecipe.Categories.Add(category);
         }
     }

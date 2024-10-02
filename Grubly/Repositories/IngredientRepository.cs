@@ -22,14 +22,16 @@ public class IngredientRepository : IIngredientRepository
             throw new ArgumentNullException(nameof(ingredient));
         }
 
-        foreach (var recipe in ingredient.Recipes)
-        {
-            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
-        }
+        var newIngredient = new Ingredient {
+            Name = ingredient.Name,
+            Description = ingredient.Description,
+        };
 
-        await _grublyContext.Ingredients.AddAsync(ingredient);
+        UpdateRecipes(newIngredient, ingredient);
+
+        await _grublyContext.Ingredients.AddAsync(newIngredient);
         await _grublyContext.SaveChangesAsync();
-        return ingredient;
+        return newIngredient;
     }
 
     public async Task Delete(int id)
@@ -80,7 +82,7 @@ public class IngredientRepository : IIngredientRepository
     public async Task<Ingredient> Update(Ingredient ingredient, int id)
     {
         // Retrieve the existing ingredient
-        Ingredient? existingIngredient = await this.GetOne(id);
+        Ingredient? existingIngredient = await GetOneWithAllDetails(id);
 
         if (existingIngredient == null)
         {
@@ -96,15 +98,23 @@ public class IngredientRepository : IIngredientRepository
         existingIngredient.Name = ingredient.Name;
         existingIngredient.Description = ingredient.Description;
 
-        foreach (var recipe in ingredient.Recipes)
-        {
-            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
-        }
+        UpdateRecipes(existingIngredient, ingredient);
 
         // Save changes to the database
         await _grublyContext.SaveChangesAsync();
 
         return existingIngredient;
+    }
+
+    private void UpdateRecipes(Ingredient targetIngredient, Ingredient sourceIngredient)
+    {
+        targetIngredient.Recipes.Clear(); // Clear existing recipes
+        foreach (var recipe in sourceIngredient.Recipes)
+        {
+            // Attach the recipe as unchanged to avoid creating duplicates if it already exists
+            _grublyContext.Entry(recipe).State = EntityState.Unchanged;
+            targetIngredient.Recipes.Add(recipe);
+        }
     }
 
 }
