@@ -30,9 +30,19 @@ public class RecipeRepository : IRecipeRepository
         return recipe;
     }
 
-    public Task Delete(int id)
+    public async Task Delete(int id)
     {
-        throw new NotImplementedException();
+        Recipe? exisitingRecipe = await GetOne(id);
+
+        if (exisitingRecipe == null) {
+            throw new KeyNotFoundException($"Recipe with ID: {id} not found.");
+        }
+
+        exisitingRecipe.Categories.Clear();
+        exisitingRecipe.Ingredients.Clear();
+
+        _grublycontext.Recipes.Remove(exisitingRecipe);
+        await _grublycontext.SaveChangesAsync();
     }
 
     public async Task<IReadOnlyList<Recipe>> GetAll()

@@ -28,11 +28,9 @@ public partial class RecipeRepositoryTests
     }
 
     [Fact]
-    public async Task DeleteRecipe_InvalidId_ThrowsNotFoundException()
+    public async Task DeleteRecipe_InvalidId_ThrowsKeyNotFoundException()
     {
         var (recipeRepository, dbContext) = CreateScope();
-        
-        //TODO: Create a NotFoundException Class in main project and use here
 
         #region Arrange
         Recipe savedRecipe = await recipeRepository.Create(new RecipeBuilder().Build());
@@ -40,7 +38,7 @@ public partial class RecipeRepositoryTests
         #endregion
 
         #region Act & Assert
-        await Assert.ThrowsAsync<Exception>(async () => await recipeRepository.Delete(savedRecipe.ID));
+        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await recipeRepository.Delete(savedRecipe.ID));
         #endregion
     }
 
