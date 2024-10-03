@@ -6,6 +6,8 @@ using Grubly.Repositories;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Data.Sqlite;
+using Grubly.Interfaces.Services;
+using Grubly.Services;
 
 namespace Grubly.Tests.Unit.Fixtures;
 
@@ -29,6 +31,10 @@ public class TestFixture : IDisposable
         services.AddScoped<IIngredientRepository, IngredientRepository>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<IRecipeRepository, RecipeRepository>();
+
+        services.AddScoped<IIngredientService, IngredientService>();
+        services.AddScoped<ICategoryService, CategoryService>();
+        services.AddScoped<IRecipeService, RecipeService>();
 
         ServiceProvider = services.BuildServiceProvider();
 
