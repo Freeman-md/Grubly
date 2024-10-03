@@ -127,42 +127,4 @@ public partial class IngredientRepositoryTests : IClassFixture<TestFixture>
         await Assert.ThrowsAsync<DbUpdateException>(() => ingredientRepository.Create(unSavedIngredient));
         #endregion
     }
-
-    //     [Fact]
-    // public async Task CreateIngredient_WithRelations_EnsuresCorrectForeignKeysAndSavesRelatedEntities()
-    // {
-    //     var (ingredientRepository, dbContext) = CreateScope();
-
-    //     #region Arrange
-    //     const int NUMBER_OF_CREATED_RECIPES = 3;
-    //     List<Recipe> recipes = RecipeBuilder.BuildMany(NUMBER_OF_CREATED_RECIPES);
-
-    //     dbContext.Recipes.AddRange(recipes);
-    //     await dbContext.SaveChangesAsync();
-
-    //     Ingredient unSavedIngredient = new IngredientBuilder()
-    //                                 .WithName("Tomatoes")
-    //                                 .WithRecipes(recipes.ToArray())
-    //                                 .Build();
-    //     #endregion
-
-    //     #region Act
-    //     Ingredient savedIngredient = await ingredientRepository.Create(unSavedIngredient);
-    //     #endregion
-
-    //     #region Assert
-    //     Assert.True(savedIngredient.ID > 0, "The Ingredient ID should be greater than 0 after saving to the database.");
-
-    //     // get model directly from db using repository to ensure relations were saved
-    //     Ingredient? retrievedIngredient = await ingredientRepository.GetOneWithAllDetails(savedIngredient.ID);
-    //     Assert.NotNull(retrievedIngredient);
-    //     Assert.Equal(unSavedIngredient.Name, retrievedIngredient!.Name);
-
-    //     Assert.Equal(recipes.Count, retrievedIngredient.Recipes!.Count);
-    //     foreach (var recipe in recipes)
-    //     {
-    //         Assert.Contains(retrievedIngredient.Recipes, r => r.Title == recipe.Title && r.Description == recipe.Description);
-    //     }
-    //     #endregion
-    // }
 }
