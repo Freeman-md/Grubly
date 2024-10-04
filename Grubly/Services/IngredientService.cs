@@ -24,7 +24,7 @@ public class IngredientService : IIngredientService
 
     public Task DeleteIngredient(int id)
     {
-        throw new NotImplementedException();
+        return _ingredientRepository.Delete(id);
     }
 
     public Task<IReadOnlyList<Ingredient>> GetAllIngredients()

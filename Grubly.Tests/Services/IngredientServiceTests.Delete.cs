@@ -30,16 +30,14 @@ public partial class IngredientServiceTests
     public async Task DeleteIngredient_RepositoryThrowsException_PropagatesException()
     {
         #region Arrange
-        var mockRepository = new Mock<IngredientRepository>();
-        var service = new IngredientService(mockRepository.Object);
         var ingredientId = 1;
 
-        mockRepository.Setup(repo => repo.Delete(ingredientId))
+        _mockRepository.Setup(repo => repo.Delete(ingredientId))
                       .ThrowsAsync(new KeyNotFoundException());
         #endregion
 
         #region Act -> Assert 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => service.DeleteIngredient(ingredientId));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.DeleteIngredient(ingredientId));
         #endregion
     }
 
