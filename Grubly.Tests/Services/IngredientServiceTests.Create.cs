@@ -15,32 +15,15 @@ using Moq;
 
 namespace Grubly.Tests.Services;
 
-public partial class IngredientServiceTests : IClassFixture<TestFixture>
+public partial class IngredientServiceTests
 {
-    private readonly ServiceProvider _serviceProvider;
     private readonly Mock<IIngredientRepository> _mockRepository;
     private readonly IngredientService _service;
 
-    public IngredientServiceTests(TestFixture fixture)
+    public IngredientServiceTests()
     {
-        _serviceProvider = fixture.ServiceProvider;
-
         _mockRepository = new Mock<IIngredientRepository>();
         _service = new IngredientService(_mockRepository.Object);
-    }
-
-    private (IIngredientService ingredientService, GrublyContext dbContext) CreateScope()
-    {
-        var scope = _serviceProvider.CreateScope();
-        var scopedServices = scope.ServiceProvider;
-
-        var ingredientService = scopedServices.GetRequiredService<IIngredientService>();
-        var dbContext = scopedServices.GetRequiredService<GrublyContext>();
-
-        dbContext.Database.EnsureDeleted();
-        dbContext.Database.EnsureCreated();
-
-        return (ingredientService, dbContext);
     }
 
     [Fact]
