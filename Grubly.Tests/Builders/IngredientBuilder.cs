@@ -15,9 +15,21 @@ public class IngredientBuilder
         };
     }
 
+    public IngredientBuilder WithId(int id)
+    {
+        _ingredient.ID = id;
+        return this;
+    }
+
     public IngredientBuilder WithName(string name)
     {
         _ingredient.Name = name;
+        return this;
+    }
+
+    public IngredientBuilder WithDescription(string description)
+    {
+        _ingredient.Description = description;
         return this;
     }
 
