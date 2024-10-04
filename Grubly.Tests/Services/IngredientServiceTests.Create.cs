@@ -63,24 +63,17 @@ public partial class IngredientServiceTests
         #region Arrange
         Ingredient ingredient = new IngredientBuilder().WithName("Tomato").WithId(1).Build();
 
-        _mockRepository.Setup(repo => repo.Create(ingredient))
-                        .ReturnsAsync(ingredient);
-
         _mockRepository.Setup(repo => repo.Create(It.Is<Ingredient>(i => i.Name == "Tomato")))
-                        .ThrowsAsync(new DbUpdateException());
-        #endregion
-
-        #region Act
-        await _service.CreateIngredient(ingredient);
+                       .ThrowsAsync(new DbUpdateException());
 
         #endregion
 
-        #region Assert
-        await Assert.ThrowsAsync<DbUpdateException>(() => _service.CreateIngredient(ingredient));
+        #region Act & Assert
+        var exception = await Assert.ThrowsAsync<DbUpdateException>(() => _service.CreateIngredient(ingredient));
 
-        _mockRepository.Verify(repo => repo.Create(It.IsAny<Ingredient>()), Times.Exactly(2));
-
+        _mockRepository.Verify(repo => repo.Create(It.IsAny<Ingredient>()), Times.Once);
         #endregion
+
     }
 
     [Theory]
