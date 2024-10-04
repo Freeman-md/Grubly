@@ -124,9 +124,9 @@ public partial class IngredientServiceTests : IClassFixture<TestFixture>
             Assert.True(savedIngredient.ID > 0, "The Ingredient ID should be greater than 0 after saving to the database.");
             Assert.Equal(unSavedIngredient.Name, savedIngredient.Name);
 
-            Ingredient? retrievedIngredient = await ingredientService.GetIngredientById(savedIngredient.ID);
+            Ingredient? retrievedIngredient = await ingredientService.GetIngredient(savedIngredient.ID);
 
-            Assert.Equal(recipes.Count, retrievedIngredient.Recipes.Count);
+            Assert.Equal(recipes.Count, retrievedIngredient!.Recipes.Count);
 
             foreach (Recipe recipe in retrievedIngredient.Recipes)
             {

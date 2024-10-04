@@ -19,7 +19,7 @@ public class IngredientService : IIngredientService
         throw new NotImplementedException();
     }
 
-    public void DeleteIngredient(int id)
+    public Task DeleteIngredient(int id)
     {
         throw new NotImplementedException();
     }

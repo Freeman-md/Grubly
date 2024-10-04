@@ -10,5 +10,5 @@ public interface IIngredientService
     public Task<Ingredient?> GetIngredient(string name);
     public Task<Ingredient> CreateIngredient(Ingredient ingredient);
     public Task<Ingredient> UpdateIngredient(Ingredient ingredient, int id);
-    public void DeleteIngredient(int id);
+    public Task DeleteIngredient(int id);
 }
