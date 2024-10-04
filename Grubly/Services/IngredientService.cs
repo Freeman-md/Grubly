@@ -29,7 +29,12 @@ public class IngredientService : IIngredientService
         throw new NotImplementedException();
     }
 
-    public Task<Ingredient> GetIngredientById(int id)
+    public Task<Ingredient?> GetIngredient(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Ingredient?> GetIngredient(string name)
     {
         throw new NotImplementedException();
     }

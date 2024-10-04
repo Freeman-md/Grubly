@@ -19,12 +19,12 @@ public partial class IngredientRepositoryTests
         Ingredient savedIngredient = await ingredientRepository.Create(new IngredientBuilder().Build());
 
         dbContext.Entry(savedIngredient).State = EntityState.Detached;
-
-        savedIngredient.Name = name;
-        savedIngredient.Description = description;
         #endregion
 
         #region Act
+        savedIngredient.Name = name;
+        savedIngredient.Description = description;
+        
         Ingredient updatedIngredient = await ingredientRepository.Update(savedIngredient, savedIngredient.ID);
         #endregion
 
