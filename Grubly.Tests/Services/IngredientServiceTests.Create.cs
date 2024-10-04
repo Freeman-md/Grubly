@@ -1,22 +1,31 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using Grubly.Data;
+using Grubly.Interfaces.Repositories;
 using Grubly.Interfaces.Services;
 using Grubly.Models;
+using Grubly.Repositories;
+using Grubly.Services;
 using Grubly.Tests.Unit.Builders;
 using Grubly.Tests.Unit.Fixtures;
 using Microsoft.CodeAnalysis.FlowAnalysis.DataFlow.ValueContentAnalysis;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 
 namespace Grubly.Tests.Services;
 
 public partial class IngredientServiceTests : IClassFixture<TestFixture>
 {
     private readonly ServiceProvider _serviceProvider;
+    private readonly Mock<IngredientRepository> _mockRepository;
+    private readonly IngredientService _service;
 
     public IngredientServiceTests(TestFixture fixture) {
         _serviceProvider = fixture.ServiceProvider;
+
+        _mockRepository = new Mock<IngredientRepository>();
+        _service = new IngredientService(_mockRepository.Object);
     }
 
     private (IIngredientService ingredientService, GrublyContext dbContext) CreateScope() {

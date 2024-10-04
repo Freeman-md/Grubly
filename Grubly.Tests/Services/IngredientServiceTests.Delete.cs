@@ -1,5 +1,6 @@
 using System;
 using Grubly.Interfaces.Repositories;
+using Grubly.Repositories;
 using Grubly.Services;
 using Moq;
 
@@ -10,32 +11,36 @@ public partial class IngredientServiceTests
     [Fact]
     public async Task DeleteIngredient_CallsRepositoryDeleteMethodSuccessfully()
     {
-        // Arrange
-        var mockRepository = new Mock<IIngredientRepository>();
-        var service = new IngredientService(mockRepository.Object);
+        #region Arrange
         var ingredientId = 1;
+        #endregion
 
-        // Act
-        await service.DeleteIngredient(ingredientId);
 
-        // Assert
-        mockRepository.Verify(repo => repo.Delete(ingredientId), Times.Once,
-            "The Delete method should be called exactly once with the correct ingredient ID.");
+        #region Act
+        await _service.DeleteIngredient(ingredientId);
+        #endregion
+
+        #region Assert
+        _mockRepository.Verify(repo => repo.Delete(ingredientId), Times.Once,
+        "The Delete method should be called exactly once with the correct ingredient ID.");
+        #endregion
     }
 
     [Fact]
     public async Task DeleteIngredient_RepositoryThrowsException_PropagatesException()
     {
-        // Arrange
-        var mockRepository = new Mock<IIngredientRepository>();
+        #region Arrange
+        var mockRepository = new Mock<IngredientRepository>();
         var service = new IngredientService(mockRepository.Object);
         var ingredientId = 1;
 
         mockRepository.Setup(repo => repo.Delete(ingredientId))
                       .ThrowsAsync(new KeyNotFoundException());
+        #endregion
 
-        // Act & Assert
+        #region Act -> Assert 
         await Assert.ThrowsAsync<KeyNotFoundException>(() => service.DeleteIngredient(ingredientId));
+        #endregion
     }
 
 
