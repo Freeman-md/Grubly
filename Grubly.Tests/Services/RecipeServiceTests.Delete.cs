@@ -3,6 +3,7 @@ using Grubly.Interfaces.Repositories;
 using Grubly.Models;
 using Grubly.Repositories;
 using Grubly.Services;
+using Grubly.Tests.Unit.Builders;
 using Moq;
 
 namespace Grubly.Tests.Services;
@@ -13,17 +14,19 @@ public partial class RecipeServiceTests
     public async Task DeleteRecipe_CallsRepositoryDeleteMethodSuccessfully()
     {
         #region Arrange
-        var ingredientId = 1;
+        Recipe recipe = new RecipeBuilder().Build();
+
+        _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync(recipe);
         #endregion
 
 
         #region Act
-        await _recipeService.DeleteRecipe(ingredientId);
+        await _recipeService.DeleteRecipe(recipe.ID);
         #endregion
 
         #region Assert
-        _mockRecipeRepository.Verify(repo => repo.Delete(ingredientId), Times.Once,
-        "The Delete method should be called exactly once with the correct ingredient ID.");
+        _mockRecipeRepository.Verify(repo => repo.Delete(recipe.ID), Times.Once,
+        "The Delete method should be called exactly once with the correct recipe ID.");
         #endregion
     }
 

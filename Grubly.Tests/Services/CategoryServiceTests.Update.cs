@@ -20,6 +20,8 @@ public partial class CategoryServiceTests
                                     .WithId(1)
                                     .Build();
 
+        _mockCategoryRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
+                       .ReturnsAsync(updatedCategory);
         _mockCategoryRepository.Setup(repo => repo.Update(updatedCategory, updatedCategory.ID))
                        .ReturnsAsync(updatedCategory);
         #endregion
@@ -87,6 +89,9 @@ public partial class CategoryServiceTests
                                            .WithRecipes(recipes.ToArray()) // Attach the recipes
                                            .Build();
 
+        _mockCategoryRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
+                       .ReturnsAsync(categoryToUpdate);
+
         // Simulate that one of the recipes doesn't exist by returning null
         _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
                              .ReturnsAsync((Recipe)null);
@@ -98,6 +103,20 @@ public partial class CategoryServiceTests
 
         // Verify that the repository method to get the recipe is called once
         _mockRecipeRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
+        #endregion
+    }
+
+    [Fact]
+    public async Task UpdateCategory_ThatDoesNotExist_ThrowsKeyNotFoundException()
+    {
+        #region Arrange
+        _mockCategoryRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Category)null);
+        #endregion
+
+        #region Act -> Assert 
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _categoryService.UpdateCategory(new CategoryBuilder().Build(), 2));
+
+        _mockCategoryRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         #endregion
     }
 

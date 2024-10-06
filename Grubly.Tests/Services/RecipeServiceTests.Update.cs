@@ -20,6 +20,8 @@ public partial class RecipeServiceTests
                                     .WithId(1)
                                     .Build();
 
+        _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
+                       .ReturnsAsync(updatedRecipe);
         _mockRecipeRepository.Setup(repo => repo.Update(updatedRecipe, updatedRecipe.ID))
                        .ReturnsAsync(updatedRecipe);
         #endregion
@@ -101,6 +103,9 @@ public partial class RecipeServiceTests
                                     .WithId(1)
                                     .Build();
 
+        _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
+                       .ReturnsAsync(recipeToUpdate);
+
         // Simulate the GetOne call returning null (ingredient does not exist)
         _mockIngredientRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Ingredient)null);
         #endregion
@@ -125,6 +130,9 @@ public partial class RecipeServiceTests
                                     .WithId(1)
                                     .Build();
 
+        _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
+                       .ReturnsAsync(recipeToUpdate);
+
         // Simulate the GetOne call returning null (category does not exist)
         _mockCategoryRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Category)null);
         #endregion
@@ -135,6 +143,20 @@ public partial class RecipeServiceTests
 
         // Verify that GetOne was called once for the category
         _mockCategoryRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
+        #endregion
+    }
+
+    [Fact]
+    public async Task UpdateRecipe_ThatDoesNotExist_ThrowsKeyNotFoundException()
+    {
+        #region Arrange
+        _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Recipe)null);
+        #endregion
+
+        #region Act -> Assert 
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _recipeService.UpdateRecipe(new RecipeBuilder().Build(), 2));
+
+        _mockRecipeRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         #endregion
     }
 

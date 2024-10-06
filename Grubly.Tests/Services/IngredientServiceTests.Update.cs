@@ -20,6 +20,8 @@ public partial class IngredientServiceTests
                                     .WithId(1)
                                     .Build();
 
+        _mockIngredientRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
+                       .ReturnsAsync(updatedIngredient);
         _mockIngredientRepository.Setup(repo => repo.Update(updatedIngredient, updatedIngredient.ID))
                        .ReturnsAsync(updatedIngredient);
         #endregion
@@ -90,6 +92,9 @@ public partial class IngredientServiceTests
                                            .WithRecipes(recipes.ToArray()) // Attach the recipes
                                            .Build();
 
+        _mockIngredientRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
+                                .ReturnsAsync(ingredientToUpdate);
+
         // Simulate that one of the recipes doesn't exist by returning null
         _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
                              .ReturnsAsync((Recipe)null);
@@ -101,6 +106,20 @@ public partial class IngredientServiceTests
 
         // Verify that the repository method to get the recipe is called once
         _mockRecipeRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
+        #endregion
+    }
+
+    [Fact]
+    public async Task UpdateIngredient_ThatDoesNotExist_ThrowsKeyNotFoundException()
+    {
+        #region Arrange
+        _mockIngredientRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Ingredient)null);
+        #endregion
+
+        #region Act -> Assert 
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _ingredientService.UpdateIngredient(new IngredientBuilder().Build(), 2));
+
+        _mockIngredientRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         #endregion
     }
 

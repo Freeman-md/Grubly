@@ -1,4 +1,5 @@
 using Grubly.Models;
+using Grubly.Tests.Unit.Builders;
 using Moq;
 
 namespace Grubly.Tests.Services;
@@ -9,16 +10,18 @@ public partial class IngredientServiceTests
     public async Task DeleteIngredient_CallsRepositoryDeleteMethodSuccessfully()
     {
         #region Arrange
-        var ingredientId = 1;
+        Ingredient ingredient = new IngredientBuilder().Build();
+
+        _mockIngredientRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync(ingredient);
         #endregion
 
 
         #region Act
-        await _ingredientService.DeleteIngredient(ingredientId);
+        await _ingredientService.DeleteIngredient(ingredient.ID);
         #endregion
 
         #region Assert
-        _mockIngredientRepository.Verify(repo => repo.Delete(ingredientId), Times.Once,
+        _mockIngredientRepository.Verify(repo => repo.Delete(ingredient.ID), Times.Once,
         "The Delete method should be called exactly once with the correct ingredient ID.");
         #endregion
     }

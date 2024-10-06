@@ -3,6 +3,7 @@ using Grubly.Interfaces.Repositories;
 using Grubly.Models;
 using Grubly.Repositories;
 using Grubly.Services;
+using Grubly.Tests.Unit.Builders;
 using Moq;
 
 namespace Grubly.Tests.Services;
@@ -13,16 +14,18 @@ public partial class CategoryServiceTests
     public async Task DeleteCategory_CallsRepositoryDeleteMethodSuccessfully()
     {
         #region Arrange
-        var categoryId = 1;
+        Category category = new CategoryBuilder().Build();
+
+        _mockCategoryRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync(category);
         #endregion
 
 
         #region Act
-        await _categoryService.DeleteCategory(categoryId);
+        await _categoryService.DeleteCategory(category.ID);
         #endregion
 
         #region Assert
-        _mockCategoryRepository.Verify(repo => repo.Delete(categoryId), Times.Once,
+        _mockCategoryRepository.Verify(repo => repo.Delete(category.ID), Times.Once,
         "The Delete method should be called exactly once with the correct category ID.");
         #endregion
     }

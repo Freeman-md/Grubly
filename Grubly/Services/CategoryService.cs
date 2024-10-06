@@ -78,6 +78,13 @@ public class CategoryService : ICategoryService
 
         ValidateCategory(category);
 
+        Category? existingCategory = await _categoryRepository.GetOne(id);
+
+        if (existingCategory == null)
+        {
+            throw new KeyNotFoundException($"Category with ID: {id} not found.");
+        }
+
         await EnsureAllRelatedRecipesExist(category);
 
         return await _categoryRepository.Update(category, id);

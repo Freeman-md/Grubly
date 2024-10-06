@@ -79,6 +79,13 @@ public class RecipeService : IRecipeService
 
         ValidateRecipe(recipe);
 
+        Recipe? existingRecipe = await _recipeRepository.GetOne(id);
+
+        if (existingRecipe == null)
+        {
+            throw new KeyNotFoundException($"Recipe with ID: {id} not found.");
+        }
+
         await EnsureAllRelatedIngredientsAndCategoriesExist(recipe);
 
         return await _recipeRepository.Update(recipe, id);

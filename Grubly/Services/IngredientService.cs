@@ -77,6 +77,13 @@ public class IngredientService : IIngredientService
 
         ValidateIngredient(ingredient);
 
+        Ingredient? existingIngredient = await _ingredientRepository.GetOne(id);
+
+        if (existingIngredient == null)
+        {
+            throw new KeyNotFoundException($"Ingredient with ID: {id} not found.");
+        }
+
         await EnsureAllRelatedRecipesExist(ingredient);
 
         return await _ingredientRepository.Update(ingredient, id);
