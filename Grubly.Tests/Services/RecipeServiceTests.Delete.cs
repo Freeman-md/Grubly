@@ -1,5 +1,6 @@
 using System;
 using Grubly.Interfaces.Repositories;
+using Grubly.Models;
 using Grubly.Repositories;
 using Grubly.Services;
 using Moq;
@@ -27,17 +28,16 @@ public partial class RecipeServiceTests
     }
 
     [Fact]
-    public async Task DeleteRecipe_RepositoryThrowsException_PropagatesException()
+    public async Task DeleteRecipe_WhenNotExists_ThrowsKeyNotFoundException()
     {
         #region Arrange
-        var ingredientId = 1;
-
-        _mockRecipeRepository.Setup(repo => repo.Delete(ingredientId))
-                      .ThrowsAsync(new KeyNotFoundException());
+        _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Recipe)null);
         #endregion
 
         #region Act -> Assert 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _recipeService.DeleteRecipe(ingredientId));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _recipeService.DeleteRecipe(2));
+
+        _mockRecipeRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         #endregion
     }
 

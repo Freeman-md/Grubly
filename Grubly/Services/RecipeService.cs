@@ -35,6 +35,13 @@ public class RecipeService : IRecipeService
 
     public async Task DeleteRecipe(int id)
     {
+        Recipe? existingRecipe = await _recipeRepository.GetOne(id);
+
+        if (existingRecipe == null)
+        {
+            throw new KeyNotFoundException($"Recipe with ID: {id} not found.");
+        }
+
         await _recipeRepository.Delete(id);
     }
 
