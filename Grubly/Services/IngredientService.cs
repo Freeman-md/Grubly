@@ -31,9 +31,9 @@ public class IngredientService : IIngredientService
         return await _ingredientRepository.Create(ingredient);
     }
 
-    public Task DeleteIngredient(int id)
+    public async Task DeleteIngredient(int id)
     {
-        return _ingredientRepository.Delete(id);
+        await _ingredientRepository.Delete(id);
     }
 
     public Task<IReadOnlyList<Ingredient>> GetAllIngredients()

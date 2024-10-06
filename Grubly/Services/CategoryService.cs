@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Grubly.Interfaces.Repositories;
 using Grubly.Interfaces.Services;
 using Grubly.Models;
@@ -17,43 +18,87 @@ public class CategoryService : ICategoryService
         _recipeRepository = recipeRepository;
     }
 
-    public Task<Category> CreateCategory(Category category)
+    public async Task<Category> CreateCategory(Category category)
     {
-        throw new NotImplementedException();
+        if (category == null)
+        {
+            throw new ArgumentNullException(nameof(category), "Ingredient cannot be null.");
+        }
+
+        ValidateCategory(category);
+
+        await EnsureAllRelatedRecipesExist(category);
+
+        return await _categoryRepository.Create(category);
     }
 
-    public Task DeleteCategory(int id)
+    public async Task DeleteCategory(int id)
     {
-        throw new NotImplementedException();
+        await _categoryRepository.Delete(id);
     }
 
-    public Task<IReadOnlyList<Category>> GetAllCategories()
+    public async Task<IReadOnlyList<Category>> GetAllCategories()
     {
-        throw new NotImplementedException();
+        return await _categoryRepository.GetAll();
     }
 
-    public Task<Category?> GetCategory(int id)
+    public async Task<Category?> GetCategory(int id)
     {
-        throw new NotImplementedException();
+        return await _categoryRepository.GetOne(id);
     }
 
-    public Task<Category?> GetCategory(string name)
+    public async Task<Category?> GetCategory(string name)
     {
-        throw new NotImplementedException();
+        return await _categoryRepository.GetOne(name);
     }
 
-    public Task<Category?> GetCategoryWithAllDetails(int id)
+    public async Task<Category?> GetCategoryWithAllDetails(int id)
     {
-        throw new NotImplementedException();
+        return await _categoryRepository.GetOneWithAllDetails(id);
     }
 
-    public Task<Category?> GetCategoryWithAllDetails(string name)
+    public async Task<Category?> GetCategoryWithAllDetails(string name)
     {
-        throw new NotImplementedException();
+        return await _categoryRepository.GetOneWithAllDetails(name);
     }
 
-    public Task<Category> UpdateCategory(Category category, int id)
+    public async Task<Category> UpdateCategory(Category category, int id)
     {
-        throw new NotImplementedException();
+        if (category == null)
+        {
+            throw new ArgumentNullException(nameof(category), "Category cannot be null.");
+        }
+
+        ValidateCategory(category);
+
+        await EnsureAllRelatedRecipesExist(category);
+
+        return await _categoryRepository.Update(category, id);
+    }
+
+    private void ValidateCategory(Category category)
+    {
+        if (string.IsNullOrWhiteSpace(category.Name))
+        {
+            throw new ValidationException("Category name cannot be null, empty, or whitespace.");
+        }
+
+        if (category.Name.Length > 50)
+        {
+            throw new ValidationException("Category name cannot exceed 50 characters.");
+        }
+    }
+
+    private async Task EnsureAllRelatedRecipesExist(Category category)
+    {
+        foreach (Recipe recipe in category.Recipes)
+        {
+            Recipe? existingRecipe = await _recipeRepository.GetOne(recipe.ID);
+
+            if (existingRecipe == null)
+            {
+                throw new KeyNotFoundException(nameof(recipe));
+            }
+        }
     }
 }
