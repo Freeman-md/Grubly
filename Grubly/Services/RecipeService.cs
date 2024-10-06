@@ -27,40 +27,40 @@ public class RecipeService : IRecipeService
         }
 
         ValidateRecipe(recipe);
-        
+
         await ValidateRecipeRelationships(recipe);
 
         return await _recipeRepository.Create(recipe);
     }
 
-    public Task DeleteRecipe(int id)
+    public async Task DeleteRecipe(int id)
     {
-        throw new NotImplementedException();
+        await _recipeRepository.Delete(id);
     }
 
     public Task<IReadOnlyList<Recipe>> GetAllRecipes()
     {
-        throw new NotImplementedException();
+        return _recipeRepository.GetAll();
     }
 
-    public Task<Recipe> GetRecipe(int id)
+    public async Task<Recipe?> GetRecipe(int id)
     {
-        throw new NotImplementedException();
+        return await _recipeRepository.GetOne(id);
     }
 
-    public Task<Recipe> GetRecipe(string title)
+    public async Task<Recipe?> GetRecipe(string title)
     {
-        throw new NotImplementedException();
+        return await _recipeRepository.GetOne(title);
     }
 
-    public Task<Recipe> GetRecipeWithAllDetails(int id)
+    public async Task<Recipe?> GetRecipeWithAllDetails(int id)
     {
-        throw new NotImplementedException();
+        return await _recipeRepository.GetOneWithAllDetails(id);
     }
 
-    public Task<Recipe> GetRecipeWithAllDetails(string title)
+    public async Task<Recipe?> GetRecipeWithAllDetails(string title)
     {
-        throw new NotImplementedException();
+        return await _recipeRepository.GetOneWithAllDetails(title);
     }
 
     public Task<Recipe> UpdateRecipe(Recipe recipe, int id)
