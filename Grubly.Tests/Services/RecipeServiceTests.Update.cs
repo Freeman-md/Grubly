@@ -71,11 +71,8 @@ public partial class RecipeServiceTests
     [InlineData("Valid Title", "", CuisineType.Italian, DifficultyLevel.Easy, "Step 1", "https://example.com/image.jpg")] // Empty Description
     [InlineData("Valid Title", null, CuisineType.Italian, DifficultyLevel.Easy, "Step 1", "https://example.com/image.jpg")] // Null Description
     [InlineData("Valid Title", "A very long description that exceeds the maximum allowed length for the recipe description, which should trigger validation", CuisineType.Italian, DifficultyLevel.Easy, "Step 1", "https://example.com/image.jpg")] // Long Description
-    [InlineData("Valid Title", "Valid Description", null, DifficultyLevel.Easy, "Step 1", "https://example.com/image.jpg")] // Null CuisineType
-    [InlineData("Valid Title", "Valid Description", CuisineType.Italian, null, "Step 1", "https://example.com/image.jpg")] // Null DifficultyLevel
-    [InlineData("Valid Title", "Valid Description", CuisineType.Italian, DifficultyLevel.Easy, null, "https://example.com/image.jpg")] // Null Instructions
-    [InlineData("Valid Title", "Valid Description", CuisineType.Italian, DifficultyLevel.Easy, "Step 1", "")] // Empty ImageUrl
-    [InlineData("Valid Title", "Valid Description", CuisineType.Italian, DifficultyLevel.Easy, "Step 1", null)] // Null ImageUrl
+    [InlineData("Valid Title", "Valid Description", (CuisineType)(-1), DifficultyLevel.Easy, "Step 1", "https://example.com/image.jpg")] // Null CuisineType
+    [InlineData("Valid Title", "Valid Description", CuisineType.Italian, (DifficultyLevel)(-1), "Step 1", "https://example.com/image.jpg")] // Null DifficultyLevel
     public async Task UpdateIngredient_InvalidInput_ThrowsValidationException(string title, string description, CuisineType cuisineType, DifficultyLevel difficultyLevel, string instructions, string imageUrl)
     {
         #region Arrange

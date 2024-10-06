@@ -63,9 +63,18 @@ public class RecipeService : IRecipeService
         return await _recipeRepository.GetOneWithAllDetails(title);
     }
 
-    public Task<Recipe> UpdateRecipe(Recipe recipe, int id)
+    public async Task<Recipe> UpdateRecipe(Recipe recipe, int id)
     {
-        throw new NotImplementedException();
+        if (recipe == null)
+        {
+            throw new ArgumentNullException(nameof(recipe));
+        }
+
+        ValidateRecipe(recipe);
+
+        await ValidateRecipeRelationships(recipe);
+
+        return await _recipeRepository.Update(recipe, id);
     }
 
     private void ValidateRecipe(Recipe recipe)
