@@ -59,7 +59,14 @@ public class IngredientService : IIngredientService
 
     public Task<Ingredient> UpdateIngredient(Ingredient ingredient, int id)
     {
-        throw new NotImplementedException();
+        if (ingredient == null)
+        {
+            throw new ArgumentNullException(nameof(ingredient), "Ingredient cannot be null.");
+        }
+        
+        ValidateIngredient(ingredient);
+        
+        return _ingredientRepository.Update(ingredient, id);
     }
 
     private void ValidateIngredient(Ingredient ingredient)

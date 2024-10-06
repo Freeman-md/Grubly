@@ -60,7 +60,7 @@ public partial class IngredientServiceTests
         #endregion
 
         #region Act -> Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _service.UpdateIngredient(ingredientToUpdate, invalidId));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.UpdateIngredient(ingredientToUpdate, invalidId));
         #endregion
     }
 
