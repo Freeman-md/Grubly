@@ -28,7 +28,7 @@ public partial class RecipeServiceTests
     }
 
     [Fact]
-    public async Task DeleteRecipe_WhenNotExists_ThrowsKeyNotFoundException()
+    public async Task DeleteRecipe_ThatDoesNotExist_ThrowsKeyNotFoundException()
     {
         #region Arrange
         _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Recipe)null);

@@ -33,6 +33,13 @@ public class IngredientService : IIngredientService
 
     public async Task DeleteIngredient(int id)
     {
+        Ingredient? existingIngredient = await _ingredientRepository.GetOne(id);
+
+        if (existingIngredient == null)
+        {
+            throw new KeyNotFoundException($"Ingredient with ID: {id} not found.");
+        }
+
         await _ingredientRepository.Delete(id);
     }
 

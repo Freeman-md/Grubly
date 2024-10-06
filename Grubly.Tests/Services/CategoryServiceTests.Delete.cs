@@ -1,5 +1,6 @@
 using System;
 using Grubly.Interfaces.Repositories;
+using Grubly.Models;
 using Grubly.Repositories;
 using Grubly.Services;
 using Moq;
@@ -27,17 +28,16 @@ public partial class CategoryServiceTests
     }
 
     [Fact]
-    public async Task DeleteCategory_RepositoryThrowsException_PropagatesException()
+    public async Task DeleteCategory_ThatDoesNotExist_ThrowsKeyNotFoundException()
     {
         #region Arrange
-        var categoryId = 1;
-
-        _mockCategoryRepository.Setup(repo => repo.Delete(categoryId))
-                      .ThrowsAsync(new KeyNotFoundException());
+        _mockCategoryRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Category)null);
         #endregion
 
         #region Act -> Assert 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _categoryService.DeleteCategory(categoryId));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _categoryService.DeleteCategory(2));
+
+        _mockCategoryRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         #endregion
     }
 
