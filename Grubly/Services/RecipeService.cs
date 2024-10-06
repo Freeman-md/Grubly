@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel.DataAnnotations;
 using Grubly.Interfaces.Repositories;
 using Grubly.Interfaces.Services;
 using Grubly.Models;
@@ -18,9 +19,18 @@ public class RecipeService : IRecipeService
         _recipeRepository = recipeRepository;
     }
 
-    public Task<Recipe> CreateRecipe(Recipe recipe)
+    public async Task<Recipe> CreateRecipe(Recipe recipe)
     {
-        throw new NotImplementedException();
+        if (recipe == null)
+        {
+            throw new ArgumentNullException(nameof(recipe));
+        }
+
+        ValidateRecipe(recipe);
+        
+        await ValidateRecipeRelationships(recipe);
+
+        return await _recipeRepository.Create(recipe);
     }
 
     public Task DeleteRecipe(int id)
@@ -56,5 +66,77 @@ public class RecipeService : IRecipeService
     public Task<Recipe> UpdateRecipe(Recipe recipe, int id)
     {
         throw new NotImplementedException();
+    }
+
+    private void ValidateRecipe(Recipe recipe)
+    {
+        // Validate Title
+        if (string.IsNullOrWhiteSpace(recipe.Title))
+        {
+            throw new ValidationException("Recipe title cannot be null or empty.");
+        }
+
+        if (recipe.Title.Length > 50)
+        {
+            throw new ValidationException("Recipe title cannot exceed 50 characters.");
+        }
+
+        // Validate Description
+        if (string.IsNullOrWhiteSpace(recipe.Description))
+        {
+            throw new ValidationException("Recipe description cannot be null or empty.");
+        }
+
+        if (recipe.Description.Length > 50)
+        {
+            throw new ValidationException("Recipe description cannot exceed 50 characters.");
+        }
+
+        // Validate CuisineType
+        if (!Enum.IsDefined(typeof(CuisineType), recipe.CuisineType))
+        {
+            throw new ValidationException("Invalid Cuisine Type.");
+        }
+
+        // Validate DifficultyLevel
+        if (!Enum.IsDefined(typeof(DifficultyLevel), recipe.DifficultyLevel))
+        {
+            throw new ValidationException("Invalid Difficulty Level.");
+        }
+
+        // Optionally validate ImageUrl if required
+        if (!string.IsNullOrEmpty(recipe.ImageUrl) && recipe.ImageUrl.Length > 200)
+        {
+            throw new ValidationException("Image URL cannot exceed 200 characters.");
+        }
+
+        // Validate Instructions (if provided)
+        if (!string.IsNullOrEmpty(recipe.Instructions) && recipe.Instructions.Length > 500)
+        {
+            throw new ValidationException("Recipe instructions cannot exceed 500 characters.");
+        }
+    }
+
+    private async Task ValidateRecipeRelationships(Recipe recipe)
+    {
+        foreach (Ingredient ingredient in recipe.Ingredients)
+        {
+            Ingredient? existingIngredient = await _ingredientRepository.GetOne(ingredient.ID);
+
+            if (existingIngredient == null)
+            {
+                throw new KeyNotFoundException(nameof(ingredient));
+            }
+        }
+
+        foreach (Category category in recipe.Categories)
+        {
+            Category? existingIngredient = await _categoryRepository.GetOne(category.ID);
+
+            if (existingIngredient == null)
+            {
+                throw new KeyNotFoundException(nameof(category));
+            }
+        }
     }
 }

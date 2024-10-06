@@ -99,8 +99,9 @@ public partial class RecipeServiceTests
         #endregion
 
         #region Act -> Assert
-        _mockIngredientRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _recipeService.CreateRecipe(recipe));
+
+        _mockIngredientRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         #endregion
     }
 
@@ -117,8 +118,9 @@ public partial class RecipeServiceTests
         #endregion
 
         #region Act -> Assert
-        _mockCategoryRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         await Assert.ThrowsAsync<KeyNotFoundException>(() => _recipeService.CreateRecipe(recipe));
+        
+        _mockCategoryRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         #endregion
     }
 
