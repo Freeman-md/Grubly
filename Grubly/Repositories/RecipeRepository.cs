@@ -44,12 +44,7 @@ public class RecipeRepository : IRecipeRepository
     {
         Recipe? existingRecipe = await GetOne(id);
 
-        if (existingRecipe == null)
-        {
-            throw new KeyNotFoundException($"Recipe with ID: {id} not found.");
-        }
-
-        existingRecipe.Categories.Clear();
+        existingRecipe!.Categories.Clear();
         existingRecipe.Ingredients.Clear();
 
         _grublyContext.Recipes.Remove(existingRecipe);
@@ -91,18 +86,13 @@ public class RecipeRepository : IRecipeRepository
     {
         Recipe? existingRecipe = await GetOneWithAllDetails(id);
 
-        if (existingRecipe == null)
-        {
-            throw new KeyNotFoundException($"Recipe with ID: {id} not found.");
-        }
-
         if (recipe == null)
         {
             throw new ArgumentNullException(nameof(recipe));
         }
 
         // Update the fields
-        existingRecipe.Title = recipe.Title;
+        existingRecipe!.Title = recipe.Title;
         existingRecipe.Description = recipe.Description;
         existingRecipe.Instructions = recipe.Instructions;
         existingRecipe.CuisineType = recipe.CuisineType;

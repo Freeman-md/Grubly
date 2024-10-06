@@ -28,21 +28,6 @@ public partial class RecipeRepositoryTests
     }
 
     [Fact]
-    public async Task DeleteRecipe_InvalidId_ThrowsKeyNotFoundException()
-    {
-        var (recipeRepository, dbContext) = CreateScope();
-
-        #region Arrange
-        Recipe savedRecipe = await recipeRepository.Create(new RecipeBuilder().Build());
-        await recipeRepository.Delete(savedRecipe.ID);
-        #endregion
-
-        #region Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await recipeRepository.Delete(savedRecipe.ID));
-        #endregion
-    }
-
-    [Fact]
     public async Task DeleteRecipe_WithManyToManyRelationships_RemovesLinksButKeepsEntities()
     {
         var (recipeRepository, dbContext) = CreateScope();

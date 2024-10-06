@@ -28,23 +28,6 @@ public partial class IngredientRepositoryTests
     }
 
     [Fact]
-    public async Task DeleteIngredient_InvalidId_ThrowsKeyNotFoundException()
-    {
-        var (ingredientRepository, dbContext) = CreateScope();
-
-        //TODO: Create a NotFoundException Class in main project and use here
-
-        #region Arrange
-        Ingredient savedIngredient = await ingredientRepository.Create(new IngredientBuilder().Build());
-        await ingredientRepository.Delete(savedIngredient.ID);
-        #endregion
-
-        #region Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await ingredientRepository.Delete(savedIngredient.ID));
-        #endregion
-    }
-
-    [Fact]
     public async Task DeleteIngredient_WithManyToManyRelationships_RemovesLinksButKeepsEntities()
     {
         var (ingredientRepository, dbContext) = CreateScope();

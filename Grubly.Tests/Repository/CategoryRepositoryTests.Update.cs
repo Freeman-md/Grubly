@@ -57,23 +57,6 @@ public partial class CategoryRepositoryTests
     }
 
     [Fact]
-    public async Task UpdateCategory_InvalidId_ThrowsKeyNotFoundException()
-    {
-        var (categoryRepository, dbContext) = CreateScope();
-
-        #region Arrange
-        const int RANDOM_ID = 82923;
-        Category savedCategory = await categoryRepository.Create(new CategoryBuilder().Build());
-
-        dbContext.Entry(savedCategory).State = EntityState.Detached;
-        #endregion
-
-        #region Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await categoryRepository.Update(savedCategory, RANDOM_ID));
-        #endregion
-    }
-
-    [Fact]
     public async Task UpdateCategory_DatabaseIntegrity_MaintainsRelationships()
     {
         var (categoryRepository, dbContext) = CreateScope();

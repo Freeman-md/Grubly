@@ -60,24 +60,6 @@ public partial class IngredientRepositoryTests
     }
 
     [Fact]
-    public async Task UpdateIngredient_InvalidId_ThrowsKeyNotFoundException()
-    {
-        var (ingredientRepository, dbContext) = CreateScope();
-        
-        //TODO: Create a NotFoundException Class in main project and use here
-        #region Arrange
-        const int RANDOM_ID = 82923;
-        Ingredient savedIngredient = await ingredientRepository.Create(new IngredientBuilder().Build());
-
-        dbContext.Entry(savedIngredient).State = EntityState.Detached;
-        #endregion
-
-        #region Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await ingredientRepository.Update(savedIngredient, RANDOM_ID));
-        #endregion
-    }
-
-    [Fact]
     public async Task UpdateIngredient_DatabaseIntegrity_MaintainsRelationships()
     {
         var (ingredientRepository, dbContext) = CreateScope();

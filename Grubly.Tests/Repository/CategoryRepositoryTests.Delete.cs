@@ -27,23 +27,6 @@ public partial class CategoryRepositoryTests
     }
 
     [Fact]
-    public async Task DeleteCategory_InvalidId_ThrowsKeyNotFoundException()
-    {
-        var (categoryRepository, dbContext) = CreateScope();
-        
-        //TODO: Create a NotFoundException Class in main project and use here
-
-        #region Arrange
-        Category savedCategory = await categoryRepository.Create(new CategoryBuilder().Build());
-        await categoryRepository.Delete(savedCategory.ID);
-        #endregion
-
-        #region Act & Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(async () => await categoryRepository.Delete(savedCategory.ID));
-        #endregion
-    }
-
-    [Fact]
     public async Task DeleteCategory_WithManyToManyRelationships_RemovesLinksButKeepsEntities()
     {
         var (categoryRepository, dbContext) = CreateScope();

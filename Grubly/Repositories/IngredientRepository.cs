@@ -38,12 +38,7 @@ public class IngredientRepository : IIngredientRepository
     {
         Ingredient? ingredient = await GetOne(id);
 
-        if (ingredient == null)
-        {
-            throw new KeyNotFoundException($"Ingredient with ID {id} not found.");
-        }
-
-        ingredient.Recipes.Clear();
+        ingredient!.Recipes.Clear();
 
         _grublyContext.Ingredients.Remove(ingredient);
 
@@ -84,18 +79,13 @@ public class IngredientRepository : IIngredientRepository
         // Retrieve the existing ingredient
         Ingredient? existingIngredient = await GetOneWithAllDetails(id);
 
-        if (existingIngredient == null)
-        {
-            throw new KeyNotFoundException($"Ingredient with ID {id} not found.");
-        }
-
         if (ingredient == null)
         {
             throw new ArgumentNullException(nameof(ingredient));
         }
 
         // Update basic fields
-        existingIngredient.Name = ingredient.Name;
+        existingIngredient!.Name = ingredient.Name;
         existingIngredient.Description = ingredient.Description;
 
         UpdateRecipes(existingIngredient, ingredient);
