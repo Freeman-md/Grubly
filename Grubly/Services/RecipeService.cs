@@ -8,9 +8,13 @@ namespace Grubly.Services;
 public class RecipeService : IRecipeService
 {
     private readonly IRecipeRepository _recipeRepository;
+    private readonly IIngredientRepository _ingredientRepository;
+    private readonly ICategoryRepository _categoryRepository;
 
-    public RecipeService(IRecipeRepository recipeRepository)
+    public RecipeService(IRecipeRepository recipeRepository, IIngredientRepository ingredientRepository, ICategoryRepository categoryRepository)
     {
+        _ingredientRepository = ingredientRepository;
+        _categoryRepository = categoryRepository;
         _recipeRepository = recipeRepository;
     }
 
@@ -19,7 +23,7 @@ public class RecipeService : IRecipeService
         throw new NotImplementedException();
     }
 
-    public void DeleteRecipe(int id)
+    public Task DeleteRecipe(int id)
     {
         throw new NotImplementedException();
     }
@@ -29,7 +33,22 @@ public class RecipeService : IRecipeService
         throw new NotImplementedException();
     }
 
-    public Task<Recipe> GetRecipeById(int id)
+    public Task<Recipe> GetRecipe(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Recipe> GetRecipe(string title)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Recipe> GetRecipeWithAllDetails(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Recipe> GetRecipeWithAllDetails(string title)
     {
         throw new NotImplementedException();
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System.ComponentModel.DataAnnotations;
+using Microsoft.EntityFrameworkCore;
 
 namespace Grubly.Models
 {
@@ -20,7 +21,11 @@ namespace Grubly.Models
     public class Recipe
     {
         public int ID { get; set; }
+
+        [StringLength(50)]
         public required string Title { get; set; }
+
+        [StringLength(50)]
         public required string Description { get; set; }
         public string? Instructions { get; set; }
         public required CuisineType CuisineType { get; set; }

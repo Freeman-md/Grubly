@@ -23,9 +23,39 @@ public class RecipeBuilder
         };
     }
 
+    public RecipeBuilder WithId(int id) {
+        _recipe.ID = id;
+        return this;
+    }
+
     public RecipeBuilder WithTitle(string title)
     {
         _recipe.Title = title;
+        return this;
+    }
+
+    public RecipeBuilder WithDescription(string description) {
+        _recipe.Description = description;
+        return this;
+    }
+
+    public RecipeBuilder WithCuisineType(CuisineType cuisineType) {
+        _recipe.CuisineType = cuisineType;
+        return this;
+    }
+
+    public RecipeBuilder WithDifficultyLevel(DifficultyLevel difficultyLevel) {
+        _recipe.DifficultyLevel = difficultyLevel;
+        return this;
+    }
+
+    public RecipeBuilder WithInstructions(string instructions) {
+        _recipe.Instructions = instructions;
+        return this;
+    }
+
+    public RecipeBuilder WithImageUrl(string imageUrl) {
+        _recipe.ImageUrl = imageUrl;
         return this;
     }
 
