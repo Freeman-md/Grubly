@@ -13,21 +13,20 @@ public partial class IngredientServiceTests
     {
         #region Arrange
 
-        var ingredientId = 1;
-        var ingredient = new Ingredient { ID = ingredientId, Name = "Tomato" };
+        var ingredient = new IngredientBuilder().WithId(1).Build();
 
-        _mockRepository.Setup(repo => repo.GetOne(ingredientId))
+        _mockIngredientRepository.Setup(repo => repo.GetOne(ingredient.ID))
                       .ReturnsAsync(ingredient);
         #endregion
 
         #region Act
-        var result = await _service.GetIngredient(ingredientId);
+        var result = await _ingredientService.GetIngredient(ingredient.ID);
         #endregion
 
         #region Assert
         Assert.NotNull(result);
-        Assert.Equal(ingredientId, result.ID);
-        _mockRepository.Verify(repo => repo.GetOne(ingredientId), Times.Once);
+        Assert.Equal(ingredient.ID, result.ID);
+        _mockIngredientRepository.Verify(repo => repo.GetOne(ingredient.ID), Times.Once);
         #endregion
     }
 
@@ -38,21 +37,20 @@ public partial class IngredientServiceTests
 
         List<Recipe> recipes = RecipeBuilder.BuildMany(2);
 
-        var ingredientId = 1;
-        Ingredient ingredient = new IngredientBuilder().WithId(ingredientId).WithRecipes(recipes.ToArray()).Build();
+        Ingredient ingredient = new IngredientBuilder().WithId(1).WithRecipes(recipes.ToArray()).Build();
 
-        _mockRepository.Setup(repo => repo.GetOneWithAllDetails(ingredientId))
+        _mockIngredientRepository.Setup(repo => repo.GetOneWithAllDetails(ingredient.ID))
                       .ReturnsAsync(ingredient);
         #endregion
 
         #region Act
-        var result = await _service.GetIngredientWithAllDetails(ingredientId);
+        var result = await _ingredientService.GetIngredientWithAllDetails(ingredient.ID);
         #endregion
 
         #region Assert
         Assert.NotNull(result);
-        Assert.Equal(ingredientId, result.ID);
-        _mockRepository.Verify(repo => repo.GetOneWithAllDetails(ingredientId), Times.Once);
+        Assert.Equal(ingredient.ID, result.ID);
+        _mockIngredientRepository.Verify(repo => repo.GetOneWithAllDetails(ingredient.ID), Times.Once);
         #endregion
     }
 
@@ -61,17 +59,17 @@ public partial class IngredientServiceTests
     {
         #region Arrange
         var invalidId = 99;
-        _mockRepository.Setup(repo => repo.GetOne(invalidId))
+        _mockIngredientRepository.Setup(repo => repo.GetOne(invalidId))
                                  .ReturnsAsync((Ingredient)null);
         #endregion
 
         #region Act
-        var result = await _service.GetIngredient(invalidId);
+        var result = await _ingredientService.GetIngredient(invalidId);
         #endregion
 
         #region Assert
         Assert.Null(result);
-        _mockRepository.Verify(repo => repo.GetOne(invalidId), Times.Once);
+        _mockIngredientRepository.Verify(repo => repo.GetOne(invalidId), Times.Once);
         #endregion
     }
 
@@ -79,21 +77,20 @@ public partial class IngredientServiceTests
     public async Task GetIngredientByName_ValidName_ReturnsIngredient()
     {
         #region Arrange
-        var ingredientName = "Tomato";
-        var ingredient = new Ingredient { Name = ingredientName };
+        var ingredient = new IngredientBuilder().Build();
 
-        _mockRepository.Setup(repo => repo.GetOneWithAllDetails(ingredientName))
+        _mockIngredientRepository.Setup(repo => repo.GetOneWithAllDetails(ingredient.Name))
                             .ReturnsAsync((ingredient));
         #endregion
 
         #region Act
-        var result = await _service.GetIngredientWithAllDetails(ingredientName);
+        var result = await _ingredientService.GetIngredientWithAllDetails(ingredient.Name);
         #endregion
 
         #region Assert
         Assert.NotNull(result);
-        Assert.Equal(ingredientName, result.Name);
-        _mockRepository.Verify(repo => repo.GetOneWithAllDetails(ingredientName), Times.Once);
+        Assert.Equal(ingredient.Name, result.Name);
+        _mockIngredientRepository.Verify(repo => repo.GetOneWithAllDetails(ingredient.Name), Times.Once);
         #endregion
     }
 
@@ -103,21 +100,20 @@ public partial class IngredientServiceTests
         #region Arrange
         List<Recipe> recipes = RecipeBuilder.BuildMany(2);
 
-        var ingredientName = "Tomato";
-        Ingredient ingredient = new IngredientBuilder().WithName(ingredientName).WithRecipes(recipes.ToArray()).Build();
+        Ingredient ingredient = new IngredientBuilder().WithRecipes(recipes.ToArray()).Build();
 
-        _mockRepository.Setup(repo => repo.GetOneWithAllDetails(ingredientName))
+        _mockIngredientRepository.Setup(repo => repo.GetOneWithAllDetails(ingredient.Name))
                             .ReturnsAsync((ingredient));
         #endregion
 
         #region Act
-        var result = await _service.GetIngredientWithAllDetails(ingredientName);
+        var result = await _ingredientService.GetIngredientWithAllDetails(ingredient.Name);
         #endregion
 
         #region Assert
         Assert.NotNull(result);
-        Assert.Equal(ingredientName, result.Name);
-        _mockRepository.Verify(repo => repo.GetOneWithAllDetails(ingredientName), Times.Once);
+        Assert.Equal(ingredient.Name, result.Name);
+        _mockIngredientRepository.Verify(repo => repo.GetOneWithAllDetails(ingredient.Name), Times.Once);
         #endregion
     }
 
@@ -127,17 +123,17 @@ public partial class IngredientServiceTests
         #region Arrange
         string invalidName = "Tomato & Garlic";
 
-        _mockRepository.Setup(repo => repo.GetOne(invalidName))
+        _mockIngredientRepository.Setup(repo => repo.GetOne(invalidName))
                             .ReturnsAsync((Ingredient)null);
         #endregion
 
         #region Act
-        var result = await _service.GetIngredient(invalidName);
+        var result = await _ingredientService.GetIngredient(invalidName);
         #endregion
 
         #region Assert
         Assert.Null(result);
-        _mockRepository.Verify(repo => repo.GetOne(invalidName), Times.Once);
+        _mockIngredientRepository.Verify(repo => repo.GetOne(invalidName), Times.Once);
         #endregion
     }
 
@@ -146,19 +142,19 @@ public partial class IngredientServiceTests
         #region Arrange
             List<Ingredient> ingredients = IngredientBuilder.BuildMany(4);
 
-            _mockRepository.Setup(repo => repo.GetAll())
+            _mockIngredientRepository.Setup(repo => repo.GetAll())
                             .ReturnsAsync(ingredients);         
         #endregion
 
         #region Act
-            IReadOnlyCollection<Ingredient> retrievedIngredients = await _service.GetAllIngredients();
+            IReadOnlyCollection<Ingredient> retrievedIngredients = await _ingredientService.GetAllIngredients();
         #endregion
 
         #region Assert
             Assert.NotNull(retrievedIngredients);
             Assert.Equal(ingredients.Count, retrievedIngredients.Count);
 
-            _mockRepository.Verify(repo => repo.GetAll(), Times.Once);
+            _mockIngredientRepository.Verify(repo => repo.GetAll(), Times.Once);
         #endregion
     }
 
@@ -167,19 +163,19 @@ public partial class IngredientServiceTests
         #region Arrange
             List<Ingredient> ingredients = new List<Ingredient>();
 
-            _mockRepository.Setup(repo => repo.GetAll())
+            _mockIngredientRepository.Setup(repo => repo.GetAll())
                             .ReturnsAsync(ingredients);         
         #endregion
 
         #region Act
-            IReadOnlyCollection<Ingredient> retrievedIngredients = await _service.GetAllIngredients();
+            IReadOnlyCollection<Ingredient> retrievedIngredients = await _ingredientService.GetAllIngredients();
         #endregion
 
         #region Assert
             Assert.NotNull(retrievedIngredients);
             Assert.Empty(retrievedIngredients);
 
-            _mockRepository.Verify(repo => repo.GetAll(), Times.Once);
+            _mockIngredientRepository.Verify(repo => repo.GetAll(), Times.Once);
         #endregion
     }
 

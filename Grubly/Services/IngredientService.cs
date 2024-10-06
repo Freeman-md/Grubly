@@ -9,22 +9,26 @@ namespace Grubly.Services;
 public class IngredientService : IIngredientService
 {
     private readonly IIngredientRepository _ingredientRepository;
+    private readonly IRecipeRepository _recipeRepository;
 
-    public IngredientService(IIngredientRepository ingredientRepository)
+    public IngredientService(IIngredientRepository ingredientRepository, IRecipeRepository recipeRepository)
     {
         _ingredientRepository = ingredientRepository;
+        _recipeRepository = recipeRepository;
     }
 
-    public Task<Ingredient> CreateIngredient(Ingredient ingredient)
+    public async Task<Ingredient> CreateIngredient(Ingredient ingredient)
     {
         if (ingredient == null)
         {
             throw new ArgumentNullException(nameof(ingredient), "Ingredient cannot be null.");
         }
-        
+
         ValidateIngredient(ingredient);
 
-        return _ingredientRepository.Create(ingredient);
+        await EnsureAllRelatedRecipesExist(ingredient);
+
+        return await _ingredientRepository.Create(ingredient);
     }
 
     public Task DeleteIngredient(int id)
@@ -57,16 +61,18 @@ public class IngredientService : IIngredientService
         return _ingredientRepository.GetOneWithAllDetails(name);
     }
 
-    public Task<Ingredient> UpdateIngredient(Ingredient ingredient, int id)
+    public async Task<Ingredient> UpdateIngredient(Ingredient ingredient, int id)
     {
         if (ingredient == null)
         {
             throw new ArgumentNullException(nameof(ingredient), "Ingredient cannot be null.");
         }
-        
+
         ValidateIngredient(ingredient);
-        
-        return _ingredientRepository.Update(ingredient, id);
+
+        await EnsureAllRelatedRecipesExist(ingredient);
+
+        return await _ingredientRepository.Update(ingredient, id);
     }
 
     private void ValidateIngredient(Ingredient ingredient)
@@ -81,9 +87,22 @@ public class IngredientService : IIngredientService
             throw new ValidationException("Ingredient name cannot exceed 50 characters.");
         }
 
-        if (ingredient.Description != null && ingredient.Description.Length > 500) 
+        if (ingredient.Description != null && ingredient.Description.Length > 500)
         {
             throw new ValidationException("Ingredient description cannot exceed 500 characters.");
+        }
+    }
+
+    private async Task EnsureAllRelatedRecipesExist(Ingredient ingredient)
+    {
+        foreach (Recipe recipe in ingredient.Recipes)
+        {
+            Recipe? existingRecipe = await _recipeRepository.GetOne(recipe.ID);
+
+            if (existingRecipe == null)
+            {
+                throw new KeyNotFoundException(nameof(recipe));
+            }
         }
     }
 }

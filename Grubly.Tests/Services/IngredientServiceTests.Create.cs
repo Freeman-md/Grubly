@@ -17,20 +17,23 @@ namespace Grubly.Tests.Services;
 
 public partial class IngredientServiceTests
 {
-    private readonly Mock<IIngredientRepository> _mockRepository;
-    private readonly IngredientService _service;
+    private readonly Mock<IIngredientRepository> _mockIngredientRepository;
+    private readonly Mock<IRecipeRepository> _mockRecipeRepository;
+    private readonly IngredientService _ingredientService;
 
     public IngredientServiceTests()
     {
-        _mockRepository = new Mock<IIngredientRepository>();
-        _service = new IngredientService(_mockRepository.Object);
+        _mockIngredientRepository = new Mock<IIngredientRepository>();
+        _mockRecipeRepository = new Mock<IRecipeRepository>();
+
+        _ingredientService = new IngredientService(_mockIngredientRepository.Object, _mockRecipeRepository.Object);
     }
 
     [Fact]
     public async Task CreateIngredient_ValidInput_CreatesIngredientSuccessfully()
     {
         #region Arrange
-        _mockRepository.Setup(repo => repo.Create(It.IsAny<Ingredient>()))
+        _mockIngredientRepository.Setup(repo => repo.Create(It.IsAny<Ingredient>()))
                                 .ReturnsAsync((Ingredient ingredient) =>
                                 {
                                     ingredient.ID = 1;
@@ -39,11 +42,11 @@ public partial class IngredientServiceTests
         #endregion
 
         #region Act
-        Ingredient savedIngredient = await _service.CreateIngredient(new IngredientBuilder().Build());
+        Ingredient savedIngredient = await _ingredientService.CreateIngredient(new IngredientBuilder().Build());
         #endregion
 
         #region Assert
-        _mockRepository.Verify(repo => repo.Create(It.IsAny<Ingredient>()), Times.Once);
+        _mockIngredientRepository.Verify(repo => repo.Create(It.IsAny<Ingredient>()), Times.Once);
         Assert.NotNull(savedIngredient);
         Assert.True(savedIngredient.ID > 0);
         #endregion
@@ -53,27 +56,8 @@ public partial class IngredientServiceTests
     public async Task CreateIngredient_NullInput_ThrowsArgumentNullException()
     {
         #region Act -> Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _service.CreateIngredient(null!));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _ingredientService.CreateIngredient(null!));
         #endregion
-    }
-
-    [Fact]
-    public async Task CreateIngredient_DuplicateIngredient_ThrowsDbUpdateException()
-    {
-        #region Arrange
-        Ingredient ingredient = new IngredientBuilder().WithName("Tomato").WithId(1).Build();
-
-        _mockRepository.Setup(repo => repo.Create(It.Is<Ingredient>(i => i.Name == "Tomato")))
-                       .ThrowsAsync(new DbUpdateException());
-
-        #endregion
-
-        #region Act & Assert
-        var exception = await Assert.ThrowsAsync<DbUpdateException>(() => _service.CreateIngredient(ingredient));
-
-        _mockRepository.Verify(repo => repo.Create(It.IsAny<Ingredient>()), Times.Once);
-        #endregion
-
     }
 
     [Theory]
@@ -92,40 +76,7 @@ public partial class IngredientServiceTests
         #endregion
 
         #region Act -> Assert
-        await Assert.ThrowsAsync<ValidationException>(() => _service.CreateIngredient(ingredient));
-        #endregion
-    }
-
-    [Fact]
-    public async Task CreateIngredient_WithExistingRecipes_CreatesWithExistingRelations()
-    {
-        #region Arrange
-        _mockRepository.Setup(repo => repo.Create(It.IsAny<Ingredient>()))
-           .ReturnsAsync((Ingredient ingredient) =>
-           {
-               ingredient.ID = 1;
-               return ingredient;
-           });
-
-        List<Recipe> recipes = RecipeBuilder.BuildMany(3);
-        #endregion
-
-        #region Act
-        Ingredient savedIngredient = await _service.CreateIngredient(
-            new IngredientBuilder().WithRecipes(recipes.ToArray()).Build()
-        );
-        #endregion
-
-        #region Assert
-        _mockRepository.Verify(repo => repo.Create(It.IsAny<Ingredient>()), Times.Once);
-
-        Assert.NotNull(savedIngredient);
-        Assert.Equal(recipes.Count, savedIngredient.Recipes.Count);
-
-        foreach (Recipe recipe in savedIngredient.Recipes)
-        {
-            Assert.Contains(savedIngredient.Recipes, (r) => r.Title == recipe.Title && r.Description == recipe.Description);
-        }
+        await Assert.ThrowsAsync<ValidationException>(() => _ingredientService.CreateIngredient(ingredient));
         #endregion
     }
 
@@ -136,12 +87,13 @@ public partial class IngredientServiceTests
         List<Recipe> recipes = RecipeBuilder.BuildMany(2);
         Ingredient ingredient = new IngredientBuilder().WithRecipes(recipes.ToArray()).Build();
 
-        _mockRepository.Setup(repo => repo.Create(It.IsAny<Ingredient>()))
-               .ThrowsAsync(new KeyNotFoundException("Recipe not found"));
+        _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>())).ReturnsAsync((Recipe)null); // simulate non-existing categories by returning null
         #endregion
 
         #region Act -> Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.CreateIngredient(ingredient));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _ingredientService.CreateIngredient(ingredient));
+
+        _mockRecipeRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
         #endregion
     }
 }

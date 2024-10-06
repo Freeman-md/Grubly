@@ -17,11 +17,11 @@ public partial class IngredientServiceTests
 
 
         #region Act
-        await _service.DeleteIngredient(ingredientId);
+        await _ingredientService.DeleteIngredient(ingredientId);
         #endregion
 
         #region Assert
-        _mockRepository.Verify(repo => repo.Delete(ingredientId), Times.Once,
+        _mockIngredientRepository.Verify(repo => repo.Delete(ingredientId), Times.Once,
         "The Delete method should be called exactly once with the correct ingredient ID.");
         #endregion
     }
@@ -32,12 +32,12 @@ public partial class IngredientServiceTests
         #region Arrange
         var ingredientId = 1;
 
-        _mockRepository.Setup(repo => repo.Delete(ingredientId))
+        _mockIngredientRepository.Setup(repo => repo.Delete(ingredientId))
                       .ThrowsAsync(new KeyNotFoundException());
         #endregion
 
         #region Act -> Assert 
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.DeleteIngredient(ingredientId));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _ingredientService.DeleteIngredient(ingredientId));
         #endregion
     }
 

@@ -28,7 +28,7 @@ public class RecipeService : IRecipeService
 
         ValidateRecipe(recipe);
 
-        await ValidateRecipeRelationships(recipe);
+        await EnsureAllRelatedIngredientsAndCategoriesExist(recipe);
 
         return await _recipeRepository.Create(recipe);
     }
@@ -72,7 +72,7 @@ public class RecipeService : IRecipeService
 
         ValidateRecipe(recipe);
 
-        await ValidateRecipeRelationships(recipe);
+        await EnsureAllRelatedIngredientsAndCategoriesExist(recipe);
 
         return await _recipeRepository.Update(recipe, id);
     }
@@ -126,7 +126,7 @@ public class RecipeService : IRecipeService
         }
     }
 
-    private async Task ValidateRecipeRelationships(Recipe recipe)
+    private async Task EnsureAllRelatedIngredientsAndCategoriesExist(Recipe recipe)
     {
         foreach (Ingredient ingredient in recipe.Ingredients)
         {

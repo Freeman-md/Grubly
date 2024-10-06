@@ -16,17 +16,16 @@ public partial class RecipeServiceTests
     {
 
         #region Arrange
-        var recipeId = 1;
         Recipe updatedRecipe = new RecipeBuilder()
-                                    .WithId(recipeId)
+                                    .WithId(1)
                                     .Build();
 
-        _mockRecipeRepository.Setup(repo => repo.Update(updatedRecipe, recipeId))
+        _mockRecipeRepository.Setup(repo => repo.Update(updatedRecipe, updatedRecipe.ID))
                        .ReturnsAsync(updatedRecipe);
         #endregion
 
         #region Act
-        var result = await _recipeService.UpdateRecipe(updatedRecipe, recipeId);
+        var result = await _recipeService.UpdateRecipe(updatedRecipe, updatedRecipe.ID);
 
         #endregion
 
@@ -35,7 +34,7 @@ public partial class RecipeServiceTests
         Assert.Equal(updatedRecipe.Title, result.Title);
         Assert.Equal(updatedRecipe.Description, result.Description);
 
-        _mockRecipeRepository.Verify(repo => repo.Update(updatedRecipe, recipeId), Times.Once);
+        _mockRecipeRepository.Verify(repo => repo.Update(updatedRecipe, updatedRecipe.ID), Times.Once);
         #endregion
     }
 

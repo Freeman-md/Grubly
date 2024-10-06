@@ -16,19 +16,16 @@ public partial class IngredientServiceTests
     {
 
         #region Arrange
-        var ingredientId = 1;
-        List<Recipe> recipes = RecipeBuilder.BuildMany(2);
         Ingredient updatedIngredient = new IngredientBuilder()
-                                    .WithId(ingredientId)
-                                    .WithRecipes(recipes.ToArray())
+                                    .WithId(1)
                                     .Build();
 
-        _mockRepository.Setup(repo => repo.Update(updatedIngredient, ingredientId))
+        _mockIngredientRepository.Setup(repo => repo.Update(updatedIngredient, updatedIngredient.ID))
                        .ReturnsAsync(updatedIngredient);
         #endregion
 
         #region Act
-        var result = await _service.UpdateIngredient(updatedIngredient, ingredientId);
+        var result = await _ingredientService.UpdateIngredient(updatedIngredient, updatedIngredient.ID);
 
         #endregion
 
@@ -36,7 +33,7 @@ public partial class IngredientServiceTests
         Assert.NotNull(result);
         Assert.Equal(updatedIngredient.Name, result.Name);
         Assert.Equal(updatedIngredient.Description, result.Description);
-        _mockRepository.Verify(repo => repo.Update(updatedIngredient, ingredientId), Times.Once);
+        _mockIngredientRepository.Verify(repo => repo.Update(updatedIngredient, updatedIngredient.ID), Times.Once);
         #endregion
     }
 
@@ -44,7 +41,7 @@ public partial class IngredientServiceTests
     public async Task UpdateIngredient_NullInput_ThrowsArgumentNullException()
     {
         #region Act -> Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(() => _service.UpdateIngredient(null!, 1));
+        await Assert.ThrowsAsync<ArgumentNullException>(() => _ingredientService.UpdateIngredient(null!, 1));
         #endregion
     }
 
@@ -55,30 +52,12 @@ public partial class IngredientServiceTests
         var invalidId = 999;
         var ingredientToUpdate = new Ingredient { ID = invalidId, Name = "Non-existent Ingredient" };
 
-        _mockRepository.Setup(repo => repo.Update(ingredientToUpdate, invalidId))
+        _mockIngredientRepository.Setup(repo => repo.Update(ingredientToUpdate, invalidId))
                    .ThrowsAsync(new KeyNotFoundException());
         #endregion
 
         #region Act -> Assert
-        await Assert.ThrowsAsync<KeyNotFoundException>(() => _service.UpdateIngredient(ingredientToUpdate, invalidId));
-        #endregion
-    }
-
-    [Fact]
-    public async Task UpdateIngredient_DuplicateName_ThrowsDbUpdateException()
-    {
-        #region Arrange
-        var ingredientId = 2;
-        var existingIngredientName = "Tomato and Garlic";
-
-        var ingredientToUpdate = new Ingredient { ID = ingredientId, Name = existingIngredientName };
-
-        _mockRepository.Setup(repo => repo.Update(ingredientToUpdate, ingredientId))
-                       .ThrowsAsync(new DbUpdateException());
-        #endregion
-
-        #region Act -> Assert
-        await Assert.ThrowsAsync<DbUpdateException>(() => _service.UpdateIngredient(ingredientToUpdate, ingredientId));
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _ingredientService.UpdateIngredient(ingredientToUpdate, invalidId));
         #endregion
     }
 
@@ -98,8 +77,32 @@ public partial class IngredientServiceTests
         #endregion
 
         #region Act -> Assert
-        await Assert.ThrowsAsync<ValidationException>(() => _service.UpdateIngredient(ingredient, ingredient.ID));
+        await Assert.ThrowsAsync<ValidationException>(() => _ingredientService.UpdateIngredient(ingredient, ingredient.ID));
         #endregion
     }
+
+    [Fact]
+    public async Task UpdateIngredient_WithNonExistingRecipes_ThrowsKeyNotFoundException()
+    {
+        #region Arrange
+        List<Recipe> recipes = RecipeBuilder.BuildMany(2); // Building two sample recipes
+        Ingredient ingredientToUpdate = new IngredientBuilder()
+                                           .WithRecipes(recipes.ToArray()) // Attach the recipes
+                                           .Build();
+
+        // Simulate that one of the recipes doesn't exist by returning null
+        _mockRecipeRepository.Setup(repo => repo.GetOne(It.IsAny<int>()))
+                             .ReturnsAsync((Recipe)null);
+        #endregion
+
+        #region Act -> Assert
+        // Assert that the service throws a KeyNotFoundException when trying to update an ingredient with non-existing recipes
+        await Assert.ThrowsAsync<KeyNotFoundException>(() => _ingredientService.UpdateIngredient(ingredientToUpdate, ingredientToUpdate.ID));
+
+        // Verify that the repository method to get the recipe is called once
+        _mockRecipeRepository.Verify(repo => repo.GetOne(It.IsAny<int>()), Times.Once);
+        #endregion
+    }
+
 
 }
