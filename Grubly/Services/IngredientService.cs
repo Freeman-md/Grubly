@@ -17,6 +17,11 @@ public class IngredientService : IIngredientService
 
     public Task<Ingredient> CreateIngredient(Ingredient ingredient)
     {
+        if (ingredient == null)
+        {
+            throw new ArgumentNullException(nameof(ingredient), "Ingredient cannot be null.");
+        }
+        
         ValidateIngredient(ingredient);
 
         return _ingredientRepository.Create(ingredient);
@@ -29,17 +34,27 @@ public class IngredientService : IIngredientService
 
     public Task<IReadOnlyList<Ingredient>> GetAllIngredients()
     {
-        throw new NotImplementedException();
+        return _ingredientRepository.GetAll();
     }
 
     public Task<Ingredient?> GetIngredient(int id)
     {
-        throw new NotImplementedException();
+        return _ingredientRepository.GetOne(id);
     }
 
     public Task<Ingredient?> GetIngredient(string name)
     {
-        throw new NotImplementedException();
+        return _ingredientRepository.GetOne(name);
+    }
+
+    public Task<Ingredient?> GetIngredientWithAllDetails(int id)
+    {
+        return _ingredientRepository.GetOneWithAllDetails(id);
+    }
+
+    public Task<Ingredient?> GetIngredientWithAllDetails(string name)
+    {
+        return _ingredientRepository.GetOneWithAllDetails(name);
     }
 
     public Task<Ingredient> UpdateIngredient(Ingredient ingredient, int id)
@@ -49,11 +64,6 @@ public class IngredientService : IIngredientService
 
     private void ValidateIngredient(Ingredient ingredient)
     {
-        if (ingredient == null)
-        {
-            throw new ArgumentNullException(nameof(ingredient), "Ingredient cannot be null.");
-        }
-
         if (string.IsNullOrWhiteSpace(ingredient.Name))
         {
             throw new ValidationException("Ingredient name cannot be null, empty, or whitespace.");
