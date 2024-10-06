@@ -9,9 +9,12 @@ public class CategoryService : ICategoryService
 {
     private readonly ICategoryRepository _categoryRepository;
 
-    public CategoryService(ICategoryRepository categoryRepository)
+    private readonly IRecipeRepository _recipeRepository;
+
+    public CategoryService(ICategoryRepository categoryRepository, IRecipeRepository recipeRepository)
     {
         _categoryRepository = categoryRepository;
+        _recipeRepository = recipeRepository;
     }
 
     public Task<Category> CreateCategory(Category category)
@@ -19,7 +22,7 @@ public class CategoryService : ICategoryService
         throw new NotImplementedException();
     }
 
-    public void DeleteCategory(int id)
+    public Task DeleteCategory(int id)
     {
         throw new NotImplementedException();
     }
@@ -29,7 +32,22 @@ public class CategoryService : ICategoryService
         throw new NotImplementedException();
     }
 
-    public Task<Category> GetCategoryById(int id)
+    public Task<Category?> GetCategory(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Category?> GetCategory(string name)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Category?> GetCategoryWithAllDetails(int id)
+    {
+        throw new NotImplementedException();
+    }
+
+    public Task<Category?> GetCategoryWithAllDetails(string name)
     {
         throw new NotImplementedException();
     }

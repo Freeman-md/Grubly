@@ -15,6 +15,12 @@ public class CategoryBuilder
         };
     }
 
+    public CategoryBuilder WithId(int id)
+    {
+        _category.ID = id;
+        return this;
+    }
+
     public CategoryBuilder WithName(string name)
     {
         _category.Name = name;
