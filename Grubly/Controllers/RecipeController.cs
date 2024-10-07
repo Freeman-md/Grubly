@@ -7,44 +7,56 @@ namespace Grubly.Controllers
 {
     public class RecipeController : Controller
     {
-        private readonly IRecipeService _recipeService;
-        private readonly IIngredientService _ingredientService;
-        private readonly ICategoryService _categoryService;
-        public IActionResult Index()
-        {
-            return View();
+        private readonly IRecipeService? _recipeService;
+        private readonly IIngredientService? _ingredientService;
+        private readonly ICategoryService? _categoryService;
+
+        public RecipeController(IRecipeService recipeService) {
+            _recipeService = recipeService;
         }
 
-        public IActionResult Show(int id)
+        public RecipeController(IRecipeService recipeService, IIngredientService ingredientService, ICategoryService categoryService)
         {
-            return View();
+            _recipeService = recipeService;
+            _ingredientService = ingredientService;
+            _categoryService = categoryService;
         }
 
-        public IActionResult Create()
+        public Task<IActionResult> Index()
         {
-            return View();
+            throw new NotImplementedException();
         }
 
-        [HttpPost]
-        public IActionResult Create(Recipe recipe)
+        public Task<IActionResult> Show(int id)
         {
-            return View();
+            throw new NotImplementedException();
         }
 
-        public IActionResult Edit(int id)
+        public Task<IActionResult> Create()
         {
-            return View();
-        }
-
-        [HttpPost]
-        public IActionResult Edit(Recipe recipe, int id)
-        {
-            return View();
+            throw new NotImplementedException();
         }
 
         [HttpPost]
-        public IActionResult Delete(int id) {
-            return RedirectToAction("Index");
+        public Task<IActionResult> Create(Recipe recipe)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<IActionResult> Edit(int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        public Task<IActionResult> Edit(Recipe recipe, int id)
+        {
+            throw new NotImplementedException();
+        }
+
+        [HttpPost]
+        public Task<IActionResult> Delete(int id) {
+            throw new NotImplementedException();
         }
 
     }
