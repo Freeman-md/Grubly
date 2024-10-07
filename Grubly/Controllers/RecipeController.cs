@@ -1,10 +1,15 @@
+using Grubly.Interfaces.Services;
 using Grubly.Models;
+using Grubly.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grubly.Controllers
 {
     public class RecipeController : Controller
     {
+        private readonly IRecipeService _recipeService;
+        private readonly IIngredientService _ingredientService;
+        private readonly ICategoryService _categoryService;
         public IActionResult Index()
         {
             return View();
