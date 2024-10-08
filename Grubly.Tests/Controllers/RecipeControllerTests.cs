@@ -14,11 +14,17 @@ public class RecipeControllerTests
     private readonly Mock<IIngredientService> _mockIngredientService;
     private readonly Mock<ICategoryService> _mockCategoryService;
 
+            private readonly RecipeController _recipeController;
+
+
     public RecipeControllerTests()
     {
         _mockRecipeService = new Mock<IRecipeService>();
         _mockIngredientService = new Mock<IIngredientService>();
         _mockCategoryService = new Mock<ICategoryService>();
+
+                    _recipeController = new RecipeController(_mockRecipeService.Object, _mockIngredientService.Object, _mockCategoryService.Object);
+
     }
 
     [Fact]
@@ -29,12 +35,10 @@ public class RecipeControllerTests
 
         _mockRecipeService.Setup(service => service.GetAllRecipes())
                             .ReturnsAsync(recipes);
-
-        RecipeController recipeController = new RecipeController(_mockRecipeService.Object);
         #endregion
 
         #region Act
-            var result = await recipeController.Index();
+            var result = await _recipeController.Index();
         #endregion
 
         #region Assert
@@ -50,12 +54,10 @@ public class RecipeControllerTests
         #region Arrange
         _mockRecipeService.Setup(service => service.GetAllRecipes())
                             .ReturnsAsync(new List<Recipe>());
-
-        RecipeController recipeController = new RecipeController(_mockRecipeService.Object);
         #endregion
 
         #region Act
-            var result = await recipeController.Index();
+            var result = await _recipeController.Index();
         #endregion
 
         #region Assert

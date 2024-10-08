@@ -7,13 +7,9 @@ namespace Grubly.Controllers
 {
     public class RecipeController : Controller
     {
-        private readonly IRecipeService? _recipeService;
-        private readonly IIngredientService? _ingredientService;
-        private readonly ICategoryService? _categoryService;
-
-        public RecipeController(IRecipeService recipeService) {
-            _recipeService = recipeService;
-        }
+        private readonly IRecipeService _recipeService;
+        private readonly IIngredientService _ingredientService;
+        private readonly ICategoryService _categoryService;
 
         public RecipeController(IRecipeService recipeService, IIngredientService ingredientService, ICategoryService categoryService)
         {
@@ -22,9 +18,11 @@ namespace Grubly.Controllers
             _categoryService = categoryService;
         }
 
-        public Task<IActionResult> Index()
+        public async Task<IActionResult> Index()
         {
-            throw new NotImplementedException();
+            IReadOnlyCollection<Recipe> recipes = await _recipeService.GetAllRecipes();
+
+            return View(recipes);
         }
 
         public Task<IActionResult> Show(int id)
