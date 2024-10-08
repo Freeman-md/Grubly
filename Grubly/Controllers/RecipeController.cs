@@ -1,6 +1,7 @@
 using Grubly.Interfaces.Services;
 using Grubly.Models;
 using Grubly.Services;
+using Grubly.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grubly.Controllers
@@ -21,8 +22,21 @@ namespace Grubly.Controllers
         public async Task<IActionResult> Index()
         {
             IReadOnlyCollection<Recipe> recipes = await _recipeService.GetAllRecipes();
+            IReadOnlyCollection<Category> categories = await _categoryService.GetAllCategories();
+            IReadOnlyCollection<Ingredient> ingredients = await _ingredientService.GetAllIngredients();
 
-            return View(recipes);
+            IReadOnlyCollection<CuisineType> cuisineTypes = Enum.GetValues(typeof(CuisineType)).Cast<CuisineType>().ToList();
+            IReadOnlyCollection<DifficultyLevel> difficultyLevels = Enum.GetValues(typeof(DifficultyLevel)).Cast<DifficultyLevel>().ToList();
+
+            RecipeIndexViewModel recipeIndexViewModel = new RecipeIndexViewModel(
+                recipes, 
+                categories,
+                ingredients,
+                cuisineTypes, 
+                difficultyLevels
+            );
+
+            return View(recipeIndexViewModel);
         }
 
         public Task<IActionResult> Show(int id)

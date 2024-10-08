@@ -1,5 +1,71 @@
+@model Grubly.ViewModels.RecipeIndexViewModel
 @{
-    ViewData["Title"] = "Recipes";
-    }
+ViewData["Title"] = "Recipes";
+}
 
-    <h1>This is the Recipes Page</h1>
+
+<section>
+
+</section>
+
+<section class="grid grid-cols-4 gap-4">
+    <aside class="border rounded-md shadow bg-white p-4 space-y-4">
+        <p class="font-bold">Filters</p>
+
+        <form class="flex flex-col space-y-4">
+            <div class="space-y-2">
+                <p>Categories</p>
+                <ul>
+                    @foreach(var category in @Model.Categories) {
+                        <li>
+                            <input type="checkbox" name="Category" id="@category.Name">
+                            <label for="@category.Name">@category.Name</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="space-y-2">
+                <p>Ingredients</p>
+                <ul>
+                    @foreach(var ingredient in @Model.Ingredients) {
+                        <li>
+                            <input type="checkbox" name="Difficulty Level" id="@ingredient.Name">
+                            <label for="@ingredient.Name">@ingredient.Name</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+            <div class="space-y-2">
+                <p>Cuisine</p>
+                <ul>
+                    @foreach(var cuisineType in @Model.CuisineTypes) {
+                        <li>
+                            <input type="checkbox" name="Cuisine" id="@cuisineType">
+                            <label for="@cuisineType">@cuisineType</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="space-y-2">
+                <p>Difficulty</p>
+                <ul>
+                    @foreach(var difficultyLevel in @Model.DifficultyLevels) {
+                        <li>
+                            <input type="checkbox" name="Difficulty Level" id="@difficultyLevel">
+                            <label for="@difficultyLevel">@difficultyLevel</label>
+                        </li>
+                    }
+                </ul>
+            </div>
+
+            <div class="space-x-4">
+                <button class="btn btn-sm btn-primary">Apply</button>
+                <button class="btn btn-sm btn-outline">Clear</button>
+            </div>
+        </form>
+    </aside>
+
+    <div class="col-span-3 grid grid-cols-3">
+    </div>
+</section>
