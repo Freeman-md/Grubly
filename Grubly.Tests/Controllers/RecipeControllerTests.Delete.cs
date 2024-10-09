@@ -25,7 +25,7 @@ public partial class RecipeControllerTests
         _mockRecipeService.Verify(service => service.DeleteRecipe(It.Is<int>(id => validId == id)), Times.Once);
 
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("Recipe", redirectResult.ActionName);
+        Assert.Equal("Index", redirectResult.ActionName);
         #endregion
     }
 

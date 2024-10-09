@@ -29,10 +29,10 @@ namespace Grubly.Controllers
             IReadOnlyCollection<DifficultyLevel> difficultyLevels = Enum.GetValues(typeof(DifficultyLevel)).Cast<DifficultyLevel>().ToList();
 
             RecipeIndexViewModel recipeIndexViewModel = new RecipeIndexViewModel(
-                recipes, 
+                recipes,
                 categories,
                 ingredients,
-                cuisineTypes, 
+                cuisineTypes,
                 difficultyLevels
             );
 
@@ -43,7 +43,8 @@ namespace Grubly.Controllers
         {
             Recipe? recipe = await _recipeService.GetRecipeWithAllDetails(id);
 
-            if (recipe == null) {
+            if (recipe == null)
+            {
                 return View("NotFound");
             }
 
@@ -73,8 +74,23 @@ namespace Grubly.Controllers
         }
 
         [HttpPost]
-        public Task<IActionResult> Delete(int id) {
-            throw new NotImplementedException();
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
+                await _recipeService.DeleteRecipe(id);
+
+                return RedirectToAction("Index");
+
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return View("NotFound", ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, "An unexpected error occurred: " + ex.Message);
+            }
         }
 
     }
