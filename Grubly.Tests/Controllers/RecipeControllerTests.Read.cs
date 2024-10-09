@@ -9,7 +9,11 @@ using Moq;
 
 namespace Grubly.Tests.Controllers;
 
-public class RecipeControllerTests
+/******
+Tests for the Index and Show Actions
+********************************************************/
+
+public partial class RecipeControllerTests
 {
     private readonly Mock<IRecipeService> _mockRecipeService;
     private readonly Mock<IIngredientService> _mockIngredientService;
@@ -166,6 +170,62 @@ public class RecipeControllerTests
         Assert.Empty(model.Recipes);
         Assert.Empty(model.Ingredients);
         Assert.Empty(model.Categories);
+        #endregion
+    }
+
+    [Fact]
+    public async Task Show_ValidId_ReturnsRecipeWithAllDetails()
+    {
+        #region Act
+        IReadOnlyCollection<Ingredient> ingredients = IngredientBuilder.BuildMany(2);
+        IReadOnlyCollection<Category> categories = CategoryBuilder.BuildMany(2);
+        Recipe recipe = new RecipeBuilder()
+                            .WithId(1)
+                            .WithIngredients(ingredients.ToArray())
+                            .WithCategories(categories.ToArray())
+                            .Build();
+
+        _mockRecipeService.Setup(service => service.GetRecipeWithAllDetails(It.Is<int>(id => id == recipe.ID))).ReturnsAsync(recipe);
+        #endregion
+
+        #region Act
+        var result = await _recipeController.Show(recipe.ID);
+        #endregion
+
+        #region Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsAssignableFrom<Recipe>(viewResult.ViewData.Model);
+
+        Assert.Equal(recipe.ID, model.ID);
+        Assert.Equal(recipe.Title, model.Title);
+        Assert.Equal(recipe.Description, model.Description);
+        Assert.Equal(recipe.CuisineType, model.CuisineType);
+        Assert.Equal(recipe.DifficultyLevel, model.DifficultyLevel);
+
+        foreach (var ingredient in recipe.Ingredients)
+        {
+            Assert.Contains(model.Ingredients, i => i.Name == ingredient.Name);
+        }
+
+        foreach (var category in recipe.Categories)
+        {
+            Assert.Contains(model.Categories, i => i.Name == category.Name);
+        }
+        #endregion
+    }
+
+    [Fact]
+    public async Task Show_InvalidId_ReturnsNotFound() {
+        #region Act
+        _mockRecipeService.Setup(service => service.GetRecipeWithAllDetails(It.IsAny<int>())).ReturnsAsync((Recipe)null!);
+        #endregion
+
+        #region Act
+        var result = await _recipeController.Show(-1);
+        #endregion
+
+        #region Assert
+        var viewResult = Assert.IsType<NotFoundResult>(result);
         #endregion
     }
 }
