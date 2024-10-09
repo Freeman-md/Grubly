@@ -27,6 +27,10 @@
         @apply bg-primary text-white hover:bg-primary-700 focus:ring-primary-500;
     }
 
+    .btn-danger {
+        @apply bg-red-500 text-white hover:bg-red-700 focus:ring-red-500;
+    }
+
     .btn-secondary {
         @apply bg-secondary text-white hover:bg-secondary-700 focus:ring-secondary-500;
     }

@@ -9,7 +9,7 @@
 
     <ul class="list-none flex space-x-4 items-center">
       <li class="hidden sm:inline-block"><a asp-controller="Home" class="hover:text-primary">Home</a></li>
-      <li class="hidden sm:inline-block"><a asp-controller="Recipe"  class="hover:text-primary">Browse Recipes</a></li>
+      <li class="hidden sm:inline-block"><a asp-controller="Recipe" asp-action="Index" class="hover:text-primary">Browse Recipes</a></li>
       <partial name="_LoginPartial" />
     </ul>
   </nav>

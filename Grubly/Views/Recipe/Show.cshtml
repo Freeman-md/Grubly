@@ -1,5 +1,52 @@
 @{
-    ViewData["Title"] = "Recipes";
-    }
+ViewData["Title"] = "Recipes";
+}
 
-    <h1>This is the Show Recipe Page</h1>
+<section class="space-y-4">
+    <h1 class="text-3xl font-bold">@Model.Title</h1>
+
+    <section class="grid grid-cols-3 gap-4">
+
+        <article class="col-span-2 space-y-4">
+            <figure class="w-full h-80 bg-gray-200 relative">
+                @await Html.PartialAsync("_Badge", ((string)@Model.CuisineType.ToString(), "absolute top-2 left-2 text-secondary text-md bg-secondary-100"))
+            </figure>
+
+            <div class="flex space-x-4 items-center justify-between">
+                <div class="w-2/3 flex flex-wrap">
+                    @foreach(var category in Model.Categories) {
+                    @await Html.PartialAsync("_Badge", ((string)@category.Name, "text-primary text-md bg-primary-100 !font-bold mr-2 mb-2"))
+                    }
+                </div>
+
+                @await Html.PartialAsync("_Badge", ((string)@Model.DifficultyLevel.ToString(), "text-md bg-gray-100"))
+            </div>
+
+            <div class="grid grid-cols-3">
+                <div>
+                    <h6 class="text-xl font-bold">Ingredients</h6>
+                    <ul class="list-disk">
+                        @foreach(var ingredient in Model.Ingredients) {
+                        <li>@ingredient.Name</li>
+                        }
+                    </ul>
+                </div>
+
+                <div class="col-span-2">
+                    <h6 class="text-xl font-bold">Instructions</h6>
+                    <p>@Html.Raw(Model.Instructions.Replace("\n", "<br>"))</p>
+                </div>
+            </div>
+        </article>
+
+        <div class="space-y-4">
+
+            <div class="flex space-x-2 w-full">
+                <a href="" class="btn btn-outline grow">Edit Recipe</a>
+                <a href="" class="btn btn-danger grow">Delete Recipe</a>
+            </div>
+
+        </div>
+
+    </section>
+</section>
