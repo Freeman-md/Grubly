@@ -68,24 +68,27 @@ ViewData["Title"] = "Recipes";
 
     <section class="sm:col-span-2 md:col-span-3 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         @foreach(var recipe in Model.Recipes) {
-        <article class="rounded-md overflow-hidden shadow">
-            <figure class="w-full h-40 bg-gray-100">
-                <!-- Image can be placed here in future -->
-            </figure>
-            <div class="p-4 space-y-2">
-                <h3 class="font-semibold">@recipe.Title</h3>
+        <a asp-controller="Recipe" asp-action="Show" asp-route-id="@recipe.ID"
+            class="rounded-md overflow-hidden shadow group hover:no-underline">
+            <article>
+                <figure class="w-full h-40 bg-gray-100">
+                    <!-- Image can be placed here in future -->
+                </figure>
+                <div class="p-4 space-y-2">
+                    <h3 class="font-semibold group-hover:!underline">@recipe.Title</h3>
 
-                <div class="flex items-center space-x-2">
-                    <img src="/images/star-filled.svg" alt="Star Filled" class="w-4 h-4 text-gray-200" />
-                    <span class="text-sm font-light">4.5 (120 reviews)</span>
-                </div>
+                    <div class="flex items-center space-x-2">
+                        <img src="/images/star-filled.svg" alt="Star Filled" class="w-4 h-4 text-gray-200" />
+                        <span class="text-sm font-light">4.5 (120 reviews)</span>
+                    </div>
 
-                <div class="flex space-x-4 items-center justify-between text-sm font-light">
-                    <time datetime="30">30 min</time>
-                    <span class="capitalize p-1 bg-gray-100 rounded">@recipe.DifficultyLevel</span>
+                    <div class="flex space-x-4 items-center justify-between text-sm font-light">
+                        <time datetime="30">30 min</time>
+                        <span class="capitalize p-1 bg-gray-100 rounded">@recipe.DifficultyLevel</span>
+                    </div>
                 </div>
-            </div>
-        </article>
+            </article>
+        </a>
         }
     </section>
 

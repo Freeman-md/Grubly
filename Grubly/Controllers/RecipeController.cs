@@ -39,9 +39,15 @@ namespace Grubly.Controllers
             return View(recipeIndexViewModel);
         }
 
-        public Task<IActionResult> Show(int id)
+        public async Task<IActionResult> Show(int id)
         {
-            throw new NotImplementedException();
+            Recipe? recipe = await _recipeService.GetRecipeWithAllDetails(id);
+
+            if (recipe == null) {
+                return View("NotFound");
+            }
+
+            return View(recipe);
         }
 
         public Task<IActionResult> Create()

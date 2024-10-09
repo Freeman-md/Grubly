@@ -225,7 +225,8 @@ public partial class RecipeControllerTests
         #endregion
 
         #region Assert
-        var viewResult = Assert.IsType<NotFoundResult>(result);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.Equal("NotFound", viewResult.ViewName);
         #endregion
     }
 }
