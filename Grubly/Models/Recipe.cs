@@ -22,14 +22,24 @@ namespace Grubly.Models
     {
         public int ID { get; set; }
 
-        [StringLength(50)]
+        [Required(ErrorMessage = "Title is required.")]
+        [StringLength(50, ErrorMessage = "Title cannot exceed 50 characters.")]
         public required string Title { get; set; }
 
-        [StringLength(50)]
+        [Required(ErrorMessage = "Description is required.")]
+        [StringLength(200, ErrorMessage = "Description cannot exceed 200 characters.")]
         public required string Description { get; set; }
+
+        [StringLength(1000, ErrorMessage = "Instructions cannot exceed 1000 characters.")]
         public string? Instructions { get; set; }
+
+        [Required(ErrorMessage = "Cuisine type is required.")]
         public required CuisineType CuisineType { get; set; }
+        
+        [Required(ErrorMessage = "Difficulty level is required.")]
         public required DifficultyLevel DifficultyLevel { get; set; }
+        
+        [Url(ErrorMessage = "Please enter a valid URL.")]
         public string? ImageUrl { get; set; }
 
         public ICollection<Ingredient> Ingredients { get; set; } = new List<Ingredient>();
