@@ -68,7 +68,7 @@ namespace Grubly.Controllers
         }
 
         [HttpPost]
-        public Task<IActionResult> Edit(Recipe recipe, int id)
+        public Task<IActionResult> Update(Recipe recipe, int id)
         {
             throw new NotImplementedException();
         }
