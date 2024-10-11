@@ -27,10 +27,24 @@ jobs:
           node-version: '20'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package.json ]; then
+            if [ -f package-lock.json ]; then
+              npm ci
+            else
+              npm install
+            fi
+          else
+            echo "No package.json found. Skipping npm install."
+          fi
 
       - name: Run npm build
-        run: npm run build
+        run: |
+          if [ -f package.json ]; then
+            npm run build
+          else
+            echo "No package.json found. Skipping npm build."
+          fi
 
       - name: Build with dotnet
         run: dotnet build --configuration Release
