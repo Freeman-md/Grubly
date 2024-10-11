@@ -51,9 +51,9 @@ namespace Grubly.Controllers
             return View(recipe);
         }
 
-        public Task<IActionResult> Create()
+        public IActionResult Create()
         {
-            throw new NotImplementedException();
+            return View();
         }
 
         [HttpPost]
