@@ -2,6 +2,7 @@ using System;
 using System.ComponentModel.DataAnnotations;
 using Grubly.Models;
 using Grubly.Tests.Unit.Builders;
+using Grubly.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Moq;
 
@@ -10,62 +11,122 @@ namespace Grubly.Tests.Controllers;
 public partial class RecipeControllerTests
 {
     [Fact]
-    public void Create_Get_ReturnsCreateView()
+    public async void Create_Get_ReturnsCreateView()
     {
+        #region Arrange
+        List<Ingredient> ingredients = IngredientBuilder.BuildMany(2);
+        List<Category> categories = CategoryBuilder.BuildMany(2);
+
+        _mockIngredientService.Setup(service => service.GetAllIngredients()).ReturnsAsync(ingredients);
+        _mockCategoryService.Setup(service => service.GetAllCategories()).ReturnsAsync(categories);
+        #endregion
+
         #region Act
-        var result = _recipeController.Create();
+        var result = await _recipeController.Create();
         #endregion
 
         #region Assert
-        Assert.IsType<ViewResult>(result);
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<RecipeFormViewModel>(viewResult.Model);
+        Assert.Equal(ingredients.Count, model.AvailableIngredients.Count);
+        Assert.Equal(categories.Count, model.AvailableCategories.Count);
+
         #endregion
     }
 
-    // [Fact]
-    // public async Task Create_Post_ValidData_CreatesRecipeAndRedirectsToIndex()
-    // {
-    //     #region Arrange
-    //     Recipe recipe = new RecipeBuilder().Build();
+    [Fact]
+    public async Task Create_Get_NoIngredientsOrCategories_ReturnsCreateViewWithEmptyLists()
+    {
+        // Arrange
+        _mockIngredientService.Setup(service => service.GetAllIngredients()).ReturnsAsync(new List<Ingredient>());
+        _mockCategoryService.Setup(service => service.GetAllCategories()).ReturnsAsync(new List<Category>());
 
-    //     _mockRecipeService.Setup(service => service.CreateRecipe(It.IsAny<Recipe>()))
-    //                     .ReturnsAsync(recipe);
-    //     #endregion
+        // Act
+        var result = await _recipeController.Create();
 
-    //     #region Act
-    //     var result = await _recipeController.Create(recipe);
-    //     #endregion
+        // Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        var model = Assert.IsType<RecipeFormViewModel>(viewResult.Model);
+        Assert.Empty(model.AvailableIngredients);
+        Assert.Empty(model.AvailableCategories);
+    }
 
-    //     #region Assert
-    //     var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-    //     Assert.Equal("Index", redirectResult.ActionName);
 
-    //     _mockRecipeService.Verify(service => service.CreateRecipe(It.Is<Recipe>(r => r.Title == recipe.Title && r.Description == recipe.Description)), Times.Once);
+    [Fact]
+    public async Task Create_Post_ValidData_CreatesRecipeAndRedirectsToIndex()
+    {
+        #region Arrange
+        _mockIngredientService.Setup(service => service.GetAllIngredients()).ReturnsAsync(IngredientBuilder.BuildMany(2));
+        _mockCategoryService.Setup(service => service.GetAllCategories()).ReturnsAsync(CategoryBuilder.BuildMany(2));
 
-    //     #endregion
-    // }
+        var viewModel = new RecipeFormViewModel
+        {
+            Title = "Test Recipe",
+            Description = "Test Description",
+            CuisineType = CuisineType.Italian,
+            DifficultyLevel = DifficultyLevel.Medium,
+            SelectedIngredients = new[] { true },
+            SelectedCategories = new[] { true },
+            AvailableIngredients = IngredientBuilder.BuildMany(1),
+            AvailableCategories = CategoryBuilder.BuildMany(1),
+        };
 
-    // [Fact]
-    // public async Task Create_Post_InvalidData_ReturnsCreateViewWithErrors()
-    // {
-    //     // Arrange
-    //     var invalidRecipe = new RecipeBuilder()
-    //         .WithTitle("")
-    //         .Build();
+        _mockRecipeService.Setup(service => service.CreateRecipe(It.IsAny<Recipe>()))
+                        .ReturnsAsync(new Recipe { ID = 1 });
+        #endregion
 
-    //     _recipeController.ModelState.AddModelError("Title", "The Title field is required."); // Simulate model validation failure
+        #region Act
+        var result = await _recipeController.Create(viewModel);
+        #endregion
 
-    //     // Act
-    //     var result = await _recipeController.Create(invalidRecipe);
+        #region Assert
+        var redirectResult = Assert.IsType<RedirectToActionResult>(result);
+        Assert.Equal("Index", redirectResult.ActionName);
 
-    //     // Assert
-    //     var viewResult = Assert.IsType<ViewResult>(result);
+        _mockRecipeService.Verify(service => service.CreateRecipe(It.Is<Recipe>(r =>
+            r.Title == viewModel.Title &&
+            r.Description == viewModel.Description &&
+            r.Ingredients.Count == 1 &&
+            r.Categories.Count == 1)), Times.Once);
+        #endregion
+    }
 
-    //     // Ensure the ModelState contains validation errors
-    //     Assert.False(_recipeController.ModelState.IsValid);
-    //     Assert.Contains("Title", _recipeController.ModelState.Keys);
+    [Fact]
+    public async Task Create_Post_InvalidData_ReturnsCreateViewWithErrors()
+    {
+        // Arrange
+        #region Arrange
+        _mockIngredientService.Setup(service => service.GetAllIngredients()).ReturnsAsync(IngredientBuilder.BuildMany(2));
+        _mockCategoryService.Setup(service => service.GetAllCategories()).ReturnsAsync(CategoryBuilder.BuildMany(2));
 
-    //     // Verify that CreateRecipe was never called due to validation failure
-    //     _mockRecipeService.Verify(service => service.CreateRecipe(It.IsAny<Recipe>()), Times.Never);
-    // }
+        var invalidViewModel = new RecipeFormViewModel
+        {
+            Title = "", // Invalid: empty title
+            Description = "Test Description",
+            CuisineType = CuisineType.Italian,
+            DifficultyLevel = DifficultyLevel.Medium,
+            SelectedIngredients = new bool[0], // Invalid: no ingredients selected
+            SelectedCategories = new bool[0], // Invalid: no categories selected
+        };
+
+        _recipeController.ModelState.AddModelError("Title", "The Title field is required.");
+        _recipeController.ModelState.AddModelError("SelectedIngredients", "Please select at least one ingredient.");
+        _recipeController.ModelState.AddModelError("SelectedCategories", "Please select at least one category.");
+        #endregion
+
+        #region Act
+        var result = await _recipeController.Create(invalidViewModel);
+        #endregion
+
+        #region Assert
+        var viewResult = Assert.IsType<ViewResult>(result);
+        Assert.IsType<RecipeFormViewModel>(viewResult.Model);
+        Assert.False(_recipeController.ModelState.IsValid);
+        Assert.Equal(3, _recipeController.ModelState.ErrorCount);
+
+        _mockRecipeService.Verify(service => service.CreateRecipe(It.IsAny<Recipe>()), Times.Never);
+        #endregion
+    }
+
 
 }

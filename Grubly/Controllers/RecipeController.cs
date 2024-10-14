@@ -1,8 +1,11 @@
+using System.ComponentModel.DataAnnotations;
 using Grubly.Interfaces.Services;
 using Grubly.Models;
 using Grubly.Services;
 using Grubly.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using NuGet.Protocol;
 
 namespace Grubly.Controllers
 {
@@ -51,21 +54,91 @@ namespace Grubly.Controllers
             return View(recipe);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Create()
         {
             IReadOnlyCollection<Ingredient> ingredients = await _ingredientService.GetAllIngredients();
             IReadOnlyCollection<Category> categories = await _categoryService.GetAllCategories();
 
-            ViewBag.Ingredients = ingredients;
-            ViewBag.Categories = categories;
+            var viewModel = new RecipeFormViewModel
+            {
+                AvailableIngredients = ingredients.ToList(),
+                AvailableCategories = categories.ToList(),
+                SelectedIngredients = new bool[ingredients.Count],
+                SelectedCategories = new bool[categories.Count]
+            };
 
-            return View();
+            return View(viewModel);
         }
 
         [HttpPost]
-        public Task<IActionResult> Create(Recipe recipe)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(RecipeFormViewModel viewModel)
         {
-            throw new NotImplementedException();
+            await PopulateAvailableIngredientsAndCategories(viewModel);
+
+            if (!ModelState.IsValid)
+            {
+                return View(viewModel);
+            }
+
+            try
+            {
+                var recipe = new Recipe
+                {
+                    Title = viewModel.Title,
+                    Description = viewModel.Description,
+                    Instructions = viewModel.Instructions,
+                    CuisineType = viewModel.CuisineType,
+                    DifficultyLevel = viewModel.DifficultyLevel,
+                    ImageUrl = viewModel.ImageUrl,
+                    Ingredients = new List<Ingredient>(),
+                    Categories = new List<Category>()
+                };
+
+                for (int i = 0; i < viewModel.SelectedIngredients.Length; i++)
+                {
+                    if (viewModel.SelectedIngredients[i])
+                    {
+                        recipe.Ingredients.Add(viewModel.AvailableIngredients[i]);
+                    }
+                }
+
+                for (int i = 0; i < viewModel.SelectedCategories.Length; i++)
+                {
+                    if (viewModel.SelectedCategories[i])
+                    {
+                        recipe.Categories.Add(viewModel.AvailableCategories[i]);
+                    }
+                }
+
+                await _recipeService.CreateRecipe(recipe);
+                return RedirectToAction("Index");
+            }
+            catch (ValidationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ModelState.AddModelError("", "One or more selected ingredients or categories are invalid.");
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("IX_Recipes_Title") == true)
+            {
+                ModelState.AddModelError("Title", "A recipe with this title already exists. Please choose a different title.");
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "A database error occurred. Please ensure your data is valid or try again later.");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while creating the recipe. Please try again.");
+
+            }
+
+            await PopulateAvailableIngredientsAndCategories(viewModel);
+            return View(viewModel);
         }
 
         public Task<IActionResult> Edit(int id)
@@ -97,6 +170,12 @@ namespace Grubly.Controllers
             {
                 return StatusCode(500, "An unexpected error occurred: " + ex.Message);
             }
+        }
+
+        private async Task PopulateAvailableIngredientsAndCategories(RecipeFormViewModel viewModel)
+        {
+            viewModel.AvailableIngredients = (await _ingredientService.GetAllIngredients()).ToList();
+            viewModel.AvailableCategories = (await _categoryService.GetAllCategories()).ToList();
         }
 
     }
