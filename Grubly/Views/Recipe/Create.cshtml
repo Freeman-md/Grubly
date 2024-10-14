@@ -1,3 +1,5 @@
+@model Grubly.Models.Recipe;
+
 @{
 ViewData["Title"] = "Recipes";
 }
@@ -5,5 +7,70 @@ ViewData["Title"] = "Recipes";
 <section class="max-w-3xl mx-auto p-6 bg-white rounded-lg shadow-md">
     <h2 class="text-2xl font-bold mb-6 text-gray-800">Create New Recipe</h2>
 
-    
+    <form asp-controller="Recipe" asp-action="Create" method="post" enctype="multipart/form-data" class="space-y-4">
+        <div class="input-group">
+            <label asp-for="Title"></label>
+            <input type="text" asp-for="Title">
+            <p asp-validation-for="Title" class="text-red-500 text-sm"></p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="input-group">
+                <label asp-for="CuisineType">Cuisine Type</label>
+                <select asp-for="CuisineType" asp-items="Html.GetEnumSelectList<CuisineType>()"></select>
+                <p asp-validation-for="CuisineType" class="text-red-500 text-sm"></p>
+            </div>
+
+            <div class="input-group">
+                <label asp-for="DifficultyLevel">Difficulty Level</label>
+                <select asp-for="DifficultyLevel" asp-items="Html.GetEnumSelectList<DifficultyLevel>()"></select>
+                <p asp-validation-for="DifficultyLevel" class="text-red-500 text-sm"></p>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label asp-for="Ingredients">Cuisine Type</label>
+            <select asp-for="Ingredients">
+                @foreach(var ingredient in ViewBag.ingredients) {
+                    <option value="@ingredient.Name">@ingredient.Name</option>
+                }
+            </select>
+            <p asp-validation-for="Ingredients" class="text-red-500 text-sm"></p>
+        </div>
+
+        <div class="input-group">
+            <label asp-for="Categories">Categories</label>
+            <select asp-for="Categories">
+                @foreach(var category in ViewBag.categories) {
+                    <option value="@category.Name">@category.Name</option>
+                }
+            </select>
+            <p asp-validation-for="Categories" class="text-red-500 text-sm"></p>
+        </div>
+
+        <div class="input-group">
+            <label asp-for="Description"></label>
+            <textarea asp-for="Description" class="resize-none"></textarea>
+            <p asp-validation-for="Description" class="text-red-500 text-sm"></p>
+        </div>
+
+        <div class="input-group">
+            <label asp-for="Instructions"></label>
+            <textarea asp-for="Instructions" class="resize-none"></textarea>
+            <p asp-validation-for="Instructions" class="text-red-500 text-sm"></p>
+        </div>
+
+        <div class="input-group">
+            <label asp-for="ImageUrl">Upload Image</label>
+            <input type="file" asp-for="ImageUrl" />
+            <p asp-validation-for="ImageUrl" class="text-red-500 text-sm"></p>
+        </div>
+
+        <div class="text-right">
+            <button type="submit"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-500 hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500">
+                Save Recipe
+            </button>
+        </div>
+    </form>
 </section>

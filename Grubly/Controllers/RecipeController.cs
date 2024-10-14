@@ -51,8 +51,14 @@ namespace Grubly.Controllers
             return View(recipe);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
+            IReadOnlyCollection<Ingredient> ingredients = await _ingredientService.GetAllIngredients();
+            IReadOnlyCollection<Category> categories = await _categoryService.GetAllCategories();
+
+            ViewBag.Ingredients = ingredients;
+            ViewBag.Categories = categories;
+
             return View();
         }
 
