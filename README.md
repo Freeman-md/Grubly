@@ -3,6 +3,8 @@ Grubly
 
 > **Grubly** is an ASP.NET MVC web application for managing recipes, ingredients, and categories with ease. Built with .NET Core, the app is deployed on Azure and incorporates a CI/CD pipeline using GitHub Actions for streamlined deployment and testing.
 
+- [Live Preview](https://grubly-dev.azurewebsites.net/)
+
 Table of Contents
 -----------------
 
