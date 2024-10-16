@@ -83,7 +83,7 @@ public partial class RecipeControllerTests
 
 
     [Fact]
-    public async Task Update_Post_ValidData_UpdatesRecipeAndRedirectsToIndex()
+    public async Task Update_Post_ValidData_UpdatesRecipeAndRedirectsToShow()
     {
         // Arrange
         #region Arrange
@@ -116,7 +116,7 @@ public partial class RecipeControllerTests
         // Assert
         #region Assert
         var redirectResult = Assert.IsType<RedirectToActionResult>(result);
-        Assert.Equal("Index", redirectResult.ActionName);
+        Assert.Equal("Show", redirectResult.ActionName);
 
         _mockRecipeService.Verify(service => service.UpdateRecipe(It.Is<Recipe>(r =>
             r.Title == viewModel.Title &&

@@ -213,7 +213,7 @@ namespace Grubly.Controllers
                 }
 
                 await _recipeService.UpdateRecipe(recipe, id);
-                return RedirectToAction("Index");
+                return RedirectToAction("Show", new { id = id });
             }
             catch (ValidationException ex)
             {
