@@ -3,7 +3,7 @@ name: Build and deploy ASP.Net Core app to Azure Web App - grubly
 on:
   push:
     branches:
-      - feature/recipe-management
+      - master
   workflow_dispatch:
 
 jobs:
