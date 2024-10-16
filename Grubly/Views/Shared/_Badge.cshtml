@@ -1,0 +1,5 @@
+@model (string BadgeText, string CssClasses)
+
+<span class="px-2 py-0.5 font-medium rounded-md @(Model.CssClasses ?? "text-secondary text-md bg-secondary-100")">
+    @Model.BadgeText
+</span>

@@ -27,6 +27,10 @@
         @apply bg-primary text-white hover:bg-primary-700 focus:ring-primary-500;
     }
 
+    .btn-danger {
+        @apply bg-red-500 text-white hover:bg-red-700 focus:ring-red-500;
+    }
+
     .btn-secondary {
         @apply bg-secondary text-white hover:bg-secondary-700 focus:ring-secondary-500;
     }
@@ -93,5 +97,15 @@
 
     .form-control {
         @apply w-full border bg-gray-50 rounded p-3 focus:outline-primary
+    }
+
+    .input-group label {
+        @apply block text-sm font-medium text-gray-700;
+    }
+    
+    .input-group input[type="text"], 
+    .input-group textarea, 
+    .input-group select {
+        @apply mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring focus:ring-primary-200;
     }
 }

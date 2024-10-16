@@ -3,7 +3,8 @@ module.exports = {
   content: [
     './Pages/**/*.cshtml',
     './Views/**/*.cshtml',
-    './Areas/Identity/Pages/**/*.cshtml'
+    './Areas/Identity/Pages/**/*.cshtml',
+    './**/*.cshtml'
   ],
   theme: {
     container: {

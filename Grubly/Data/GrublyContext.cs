@@ -4,8 +4,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Grubly.Data
 {
-    public class GrublyContext : IdentityDbContext<ApplicationUser> {
-        public GrublyContext(DbContextOptions<GrublyContext> options) : base(options) {
+    public class GrublyContext : IdentityDbContext<ApplicationUser>
+    {
+        public GrublyContext(DbContextOptions<GrublyContext> options) : base(options)
+        {
 
         }
 
@@ -13,5 +15,13 @@ namespace Grubly.Data
         public DbSet<Ingredient> Ingredients { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Rating> Ratings { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // modelBuilder.ApplyConfiguration(new IngredientConfiguration());
+
+        }
     }
 }
