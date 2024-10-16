@@ -141,9 +141,34 @@ namespace Grubly.Controllers
             return View(viewModel);
         }
 
-        public Task<IActionResult> Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            throw new NotImplementedException();
+            Recipe? recipe = await _recipeService.GetRecipeWithAllDetails(id);
+
+            if (recipe == null)
+            {
+                return View("NotFound");
+            }
+
+            IReadOnlyCollection<Ingredient> ingredients = await _ingredientService.GetAllIngredients();
+            IReadOnlyCollection<Category> categories = await _categoryService.GetAllCategories();
+
+            var viewModel = new RecipeFormViewModel
+            {
+                ID = recipe.ID,
+                Title = recipe.Title,
+                Description = recipe.Description,
+                Instructions = recipe.Instructions,
+                CuisineType = recipe.CuisineType,
+                DifficultyLevel = recipe.DifficultyLevel,
+                ImageUrl = recipe.ImageUrl,
+                AvailableIngredients = ingredients.ToList(),
+                AvailableCategories = categories.ToList(),
+                SelectedIngredients = ingredients.Select(ingredient => recipe.Ingredients.Contains(ingredient)).ToArray(),
+                SelectedCategories = categories.Select(category => recipe.Categories.Contains(category)).ToArray()
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
