@@ -137,10 +137,10 @@ namespace Grubly.Controllers
 
             }
 
-            await PopulateAvailableIngredientsAndCategories(viewModel);
             return View(viewModel);
         }
 
+        [HttpGet]
         public async Task<IActionResult> Edit(int id)
         {
             Recipe? recipe = await _recipeService.GetRecipeWithAllDetails(id);
@@ -172,10 +172,73 @@ namespace Grubly.Controllers
         }
 
         [HttpPost]
-        public Task<IActionResult> Update(Recipe recipe, int id)
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Update(RecipeFormViewModel viewModel, int id)
         {
-            throw new NotImplementedException();
+            await PopulateAvailableIngredientsAndCategories(viewModel);
+
+            if (!ModelState.IsValid)
+            {
+                return View("Edit", viewModel);
+            }
+
+            try
+            {
+                var recipe = new Recipe
+                {
+                    Title = viewModel.Title,
+                    Description = viewModel.Description,
+                    Instructions = viewModel.Instructions,
+                    CuisineType = viewModel.CuisineType,
+                    DifficultyLevel = viewModel.DifficultyLevel,
+                    ImageUrl = viewModel.ImageUrl,
+                    Ingredients = new List<Ingredient>(),
+                    Categories = new List<Category>()
+                };
+
+                for (int i = 0; i < viewModel.SelectedIngredients.Length; i++)
+                {
+                    if (viewModel.SelectedIngredients[i])
+                    {
+                        recipe.Ingredients.Add(viewModel.AvailableIngredients[i]);
+                    }
+                }
+
+                for (int i = 0; i < viewModel.SelectedCategories.Length; i++)
+                {
+                    if (viewModel.SelectedCategories[i])
+                    {
+                        recipe.Categories.Add(viewModel.AvailableCategories[i]);
+                    }
+                }
+
+                await _recipeService.UpdateRecipe(recipe, id);
+                return RedirectToAction("Index");
+            }
+            catch (ValidationException ex)
+            {
+                ModelState.AddModelError("", ex.Message);
+            }
+            catch (KeyNotFoundException ex)
+            {
+                ModelState.AddModelError("", "One or more selected ingredients or categories are invalid.");
+            }
+            catch (DbUpdateException ex) when (ex.InnerException?.Message.Contains("IX_Recipes_Title") == true)
+            {
+                ModelState.AddModelError("Title", "A recipe with this title already exists. Please choose a different title.");
+            }
+            catch (DbUpdateException)
+            {
+                ModelState.AddModelError("", "A database error occurred. Please ensure your data is valid or try again later.");
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "An error occurred while updating the recipe. Please try again.");
+            }
+
+            return View("Edit", viewModel);
         }
+
 
         [HttpPost]
         public async Task<IActionResult> Delete(int id)
