@@ -68,9 +68,9 @@ jobs:
       - name: Retrieve Publish Profile from Key Vault
         id: get-secret
         run: |
-          secret_value=$(az keyvault secret show --name "azure-publish-profile" --vault-name "ShortsKeyVault" --query value -o tsv)
+          $secret_value = az keyvault secret show --name "azure-publish-profile" --vault-name "ShortsKeyVault" --query value -o tsv
           echo "::add-mask::$secret_value"
-          echo "AZURE_PUBLISH_PROFILE=$secret_value" >> $GITHUB_ENV
+          echo "AZURE_PUBLISH_PROFILE=$secret_value" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8
 
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
