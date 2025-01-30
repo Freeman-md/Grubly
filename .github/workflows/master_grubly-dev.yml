@@ -60,11 +60,23 @@ jobs:
         with:
           name: .net-app
 
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Retrieve Publish Profile from Key Vault
+        id: get-secret
+        run: |
+          secret_value=$(az keyvault secret show --name "azure-publish-profile" --vault-name "ShortsKeyVault" --query value -o tsv)
+          echo "::add-mask::$secret_value"
+          echo "AZURE_PUBLISH_PROFILE=$secret_value" >> $GITHUB_ENV
+
       - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'grubly-dev'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9058C4C6FC8F444ABAD913DF3E3E1F8A }}
+          publish-profile: ${{ env.AZURE_PUBLISH_PROFILE }}
           package: .
